@@ -18,9 +18,15 @@ export class VersionHistory {
     localStorage.setItem(this.storageKey, JSON.stringify(this.entries));
   }
 
-  snapshot({ data, theme, label }, force = false) {
-    const serializedState = JSON.stringify({ data, theme });
-    const latestState = this.entries[0] ? JSON.stringify({ data: this.entries[0].data, theme: this.entries[0].theme }) : null;
+  snapshot({ data, theme, textScale, label }, force = false) {
+    const serializedState = JSON.stringify({ data, theme, textScale });
+    const latestState = this.entries[0]
+      ? JSON.stringify({
+          data: this.entries[0].data,
+          theme: this.entries[0].theme,
+          textScale: this.entries[0].textScale,
+        })
+      : null;
     if (!force && serializedState === latestState) return false;
 
     this.entries.unshift({
@@ -29,6 +35,7 @@ export class VersionHistory {
       label,
       data: JSON.parse(JSON.stringify(data)),
       theme,
+      textScale,
     });
     this.entries = this.entries.slice(0, this.maxEntries);
     this.save();
@@ -43,4 +50,3 @@ export class VersionHistory {
     return [...this.entries];
   }
 }
-

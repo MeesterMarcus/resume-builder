@@ -3,10 +3,16 @@ import { VersionHistory } from "./version-history.js";
 
 const STORAGE_KEY = "cv-studio-resume-v1";
 const THEME_KEY = "cv-studio-theme";
+const TEXT_SCALE_KEY = "cv-studio-text-scale-v2";
+const TEXT_SCALE_BASE = 1.25;
+const TEXT_SCALE_MIN = 0.875;
+const TEXT_SCALE_MAX = 1.5;
+const TEXT_SCALE_STEP = 0.0625;
 const HISTORY_KEY = "cv-studio-history-v1";
 const clone = (value) => JSON.parse(JSON.stringify(value));
 let data = clone(defaultData);
 let zoom = 0.82;
+let textScale = Number.parseFloat(localStorage.getItem(TEXT_SCALE_KEY) ?? String(TEXT_SCALE_BASE));
 let previousAiVersion = null;
 let isDirty = false;
 const aiDocuments = { resume: null, job: null };
@@ -76,6 +82,47 @@ const experienceHtml = (roles) =>
     )
     .join("");
 
+function fitFirstPageExperience() {
+  const firstPage = preview.querySelector(".resume-page:first-child");
+  const firstExperience = firstPage?.querySelector(".experience-section");
+  const secondExperience = preview.querySelector(".resume-page:nth-child(2) .experience-section");
+  const footer = firstPage?.querySelector("footer");
+  if (!firstExperience || !secondExperience || !footer) return;
+
+  let lastRole = firstExperience.querySelector(".resume-role:last-child");
+  while (lastRole && lastRole.getBoundingClientRect().bottom > footer.getBoundingClientRect().top - 12) {
+    secondExperience.querySelector(".resume-section-title").insertAdjacentElement("afterend", lastRole);
+    lastRole = firstExperience.querySelector(".resume-role:last-child");
+  }
+  secondExperience.hidden = !secondExperience.querySelector(".resume-role");
+}
+
+function fitClosingStatement() {
+  const secondPage = preview.querySelector(".resume-page:nth-child(2)");
+  const closing = secondPage?.querySelector(".philosophy");
+  const footer = secondPage?.querySelector("footer");
+  if (!closing || !footer) return;
+
+  let fitScale = 1;
+  const applyScale = () => {
+    closing.style.setProperty("--closing-margin", `${42 * fitScale}px`);
+    closing.style.setProperty("--closing-padding", `${31 * fitScale}px`);
+    closing.style.setProperty("--closing-label-size", `${7.5 * textScale * fitScale}px`);
+    closing.style.setProperty("--closing-font-size", `${16 * textScale * fitScale}px`);
+  };
+
+  applyScale();
+  while (closing.getBoundingClientRect().bottom > footer.getBoundingClientRect().top - 12 && fitScale > 0.5) {
+    fitScale = Math.max(0.5, fitScale - 0.05);
+    applyScale();
+  }
+}
+
+function fitResumeLayout() {
+  fitFirstPageExperience();
+  fitClosingStatement();
+}
+
 function renderPreview() {
   const hasResumeContent =
     Object.values(data.basics).some((value) => value.trim()) ||
@@ -99,8 +146,7 @@ function renderPreview() {
     return;
   }
 
-  const firstRoles = data.experience.slice(0, 3);
-  const secondRoles = data.experience.slice(3);
+  const firstRoles = data.experience;
   preview.innerHTML = `
     <article class="resume-page">
       <header class="resume-header">
@@ -115,17 +161,18 @@ function renderPreview() {
       <section>${sectionTitle("Profile")}<p class="summary-copy">${escapeHtml(data.summary)}</p></section>
       ${data.achievements?.length ? `<section>${sectionTitle("Selected impact")}<div class="achievement-grid">${data.achievements.map((item) => `<div><strong>${escapeHtml(item.value)}</strong><span>${escapeHtml(item.label)}</span></div>`).join("")}</div></section>` : ""}
       <section>${sectionTitle("Core competencies")}<div class="skills-grid">${data.skills.map((skill) => `<div><strong>${escapeHtml(skill.category)}</strong><span>${escapeHtml(skill.items)}</span></div>`).join("")}</div></section>
-      <section>${sectionTitle("Professional experience")}${experienceHtml(firstRoles)}</section>
+      <section class="experience-section">${sectionTitle("Professional experience")}${experienceHtml(firstRoles)}</section>
       <footer><span>${escapeHtml(data.basics.name)}</span><span>01 / 02</span></footer>
     </article>
     <article class="resume-page">
       <div class="page-two-heading"><span>${escapeHtml(data.basics.name)}</span><span>${escapeHtml(data.basics.title)}</span></div>
-      <section>${sectionTitle("Professional experience · continued")}${experienceHtml(secondRoles)}</section>
+      <section class="experience-section" hidden>${sectionTitle("Professional experience · continued")}</section>
       <section class="education-section">${sectionTitle("Education")}<div class="education-row"><div><h3>${escapeHtml(data.education.school)}</h3><p>${escapeHtml(data.education.degree)}</p></div><strong>${escapeHtml(data.education.date)}</strong></div></section>
       ${data.closingStatement.enabled && data.closingStatement.text.trim() ? `<section class="philosophy"><span>${escapeHtml(data.closingStatement.label || "Professional value")}</span><p>${escapeHtml(data.closingStatement.text)}</p></section>` : ""}
       <footer><span>${escapeHtml(data.basics.name)}</span><span>02 / 02</span></footer>
     </article>`;
   preview.style.setProperty("--preview-scale", zoom);
+  fitResumeLayout();
 }
 
 function setByPath(path, value) {
@@ -154,6 +201,7 @@ function createVersion(label, force = false) {
   const created = versionHistory.snapshot({
     data,
     theme: document.documentElement.dataset.resumeTheme ?? "blue",
+    textScale,
     label,
   }, force);
   if (created) renderVersionHistory();
@@ -164,6 +212,7 @@ function saveResume() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     localStorage.setItem(THEME_KEY, document.documentElement.dataset.resumeTheme ?? "blue");
+    localStorage.setItem(TEXT_SCALE_KEY, String(textScale));
     const created = createVersion("Saved version");
     isDirty = false;
     saveStatus.textContent = "Saved locally";
@@ -279,6 +328,23 @@ function setTheme(theme, record = true) {
   });
   if (record) markDirty("Color change not saved");
 }
+
+function setTextScale(nextScale, record = true) {
+  const steppedScale = Math.round(nextScale / TEXT_SCALE_STEP) * TEXT_SCALE_STEP;
+  textScale = Math.min(TEXT_SCALE_MAX, Math.max(TEXT_SCALE_MIN, steppedScale));
+  document.documentElement.style.setProperty("--resume-type-scale", textScale);
+  document.querySelector("#textSizeValue").textContent =
+    `${Math.round((textScale / TEXT_SCALE_BASE) * 100)}%`;
+  document.querySelector("#textSizeDown").disabled = textScale <= TEXT_SCALE_MIN;
+  document.querySelector("#textSizeUp").disabled = textScale >= TEXT_SCALE_MAX;
+  if (record) {
+    renderPreview();
+    markDirty("Text size change not saved");
+  }
+}
+
+document.querySelector("#textSizeDown").addEventListener("click", () => setTextScale(textScale - TEXT_SCALE_STEP));
+document.querySelector("#textSizeUp").addEventListener("click", () => setTextScale(textScale + TEXT_SCALE_STEP));
 
 document.querySelectorAll(".color-swatch").forEach((swatch) => {
   swatch.addEventListener("click", () => setTheme(swatch.dataset.theme));
@@ -468,6 +534,7 @@ document.querySelector("#historyList").addEventListener("click", (event) => {
 
   data = clone(version.data);
   setTheme(version.theme ?? "blue", false);
+  setTextScale(version.textScale ?? TEXT_SCALE_BASE, false);
   fillEditor();
   renderPreview();
   updateCompletion();
@@ -477,7 +544,9 @@ document.querySelector("#historyList").addEventListener("click", (event) => {
 });
 
 fillEditor();
+setTheme(localStorage.getItem(THEME_KEY) ?? "blue", false);
+setTextScale(textScale, false);
 renderPreview();
 updateCompletion();
-setTheme(localStorage.getItem(THEME_KEY) ?? "blue", false);
 renderVersionHistory();
+document.fonts?.ready.then(fitResumeLayout);
