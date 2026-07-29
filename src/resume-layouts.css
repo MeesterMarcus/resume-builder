@@ -105,29 +105,64 @@ html[data-resume-layout="editorial"] .role-heading { padding-left: 10px; border-
 html[data-resume-layout="editorial"] .page-two-heading { border-bottom: 3px solid var(--accent); }
 html[data-resume-layout="editorial"] .resume-page footer { left: 76px; }
 
-/* Sidebar — colored identity band and card-like supporting information. */
-html[data-resume-layout="sidebar"] .resume-page { padding: 0 58px 46px; }
+/* Sidebar — persistent colored identity rail with a narrow content column. */
+html[data-resume-layout="sidebar"] .resume-page:first-child {
+  padding: 48px 52px 46px;
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  grid-template-rows: auto auto auto auto auto;
+  column-gap: 30px;
+  align-content: start;
+}
 html[data-resume-layout="sidebar"] .resume-header {
-  margin: 0 -58px;
-  padding: 50px 58px 30px;
+  grid-column: 1;
+  grid-row: 1 / 5;
+  align-self: stretch;
+  display: block;
+  padding: 28px 22px;
   background: var(--accent-strong);
   border: 0;
+  border-radius: 7px;
   color: #fff;
+}
+html[data-resume-layout="sidebar"] .resume-header h1 {
+  font-size: calc(26px * var(--resume-type-scale));
+  line-height: 1.02;
+}
+html[data-resume-layout="sidebar"] .resume-header h2 {
+  margin-top: 12px;
+  line-height: 1.35;
 }
 html[data-resume-layout="sidebar"] .resume-kicker,
 html[data-resume-layout="sidebar"] .resume-header h2,
 html[data-resume-layout="sidebar"] .resume-header address,
 html[data-resume-layout="sidebar"] .resume-header a { color: #fff; }
-html[data-resume-layout="sidebar"] .resume-header address { opacity: .84; }
-html[data-resume-layout="sidebar"] .resume-tagline {
-  margin: 0 -58px 23px;
-  padding: 12px 58px;
-  background: var(--accent);
-  color: #fff;
+html[data-resume-layout="sidebar"] .resume-header address {
+  min-width: 0;
+  margin-top: 30px;
+  align-items: start;
+  gap: 8px;
+  text-align: left;
+  opacity: .84;
+  overflow-wrap: anywhere;
 }
+html[data-resume-layout="sidebar"] .resume-tagline {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0 0 23px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid var(--accent);
+  color: var(--accent-strong);
+}
+html[data-resume-layout="sidebar"] .profile-section { grid-column: 2; grid-row: 2; }
+html[data-resume-layout="sidebar"] .impact-section { grid-column: 2; grid-row: 3; }
+html[data-resume-layout="sidebar"] .skills-section { grid-column: 2; grid-row: 4; }
+html[data-resume-layout="sidebar"] .experience-section { grid-column: 1 / -1; grid-row: 5; }
 html[data-resume-layout="sidebar"] .resume-section-title { color: var(--accent-strong); }
+html[data-resume-layout="sidebar"] .achievement-grid { grid-template-columns: repeat(2, 1fr); }
 html[data-resume-layout="sidebar"] .achievement-grid div { border: 0; border-radius: 5px; }
-html[data-resume-layout="sidebar"] .skills-grid { padding: 15px; background: var(--accent-soft); border-radius: 6px; }
+html[data-resume-layout="sidebar"] .skills-grid { grid-template-columns: 1fr; padding: 12px; background: var(--accent-soft); border-radius: 6px; }
+html[data-resume-layout="sidebar"] .skills-grid div { grid-template-columns: 82px 1fr; }
 html[data-resume-layout="sidebar"] .resume-role { padding-left: 14px; border-left: 2px solid #dbe1e9; }
 html[data-resume-layout="sidebar"] .resume-role:hover { border-left-color: var(--accent); }
 html[data-resume-layout="sidebar"] .page-two-heading {
@@ -137,6 +172,7 @@ html[data-resume-layout="sidebar"] .page-two-heading {
   border: 0;
   color: #fff;
 }
+html[data-resume-layout="sidebar"] .resume-page:first-child footer { left: 52px; right: 52px; }
 
 /* Technical — squared geometry and monospace-flavored information hierarchy. */
 html[data-resume-layout="technical"] .resume-page {

@@ -2,6 +2,7 @@ import { resumeData as defaultData } from "./resume-data.js";
 import { VersionHistory } from "./version-history.js";
 
 const STORAGE_KEY = "cv-studio-resume-v1";
+const DOCUMENT_NAME_KEY = "cv-studio-document-name";
 const THEME_KEY = "cv-studio-theme";
 const LAYOUT_KEY = "cv-studio-layout";
 const TEXT_SCALE_KEY = "cv-studio-text-scale-v2";
@@ -10,8 +11,94 @@ const TEXT_SCALE_MIN = 0.875;
 const TEXT_SCALE_MAX = 1.5;
 const TEXT_SCALE_STEP = 0.0625;
 const HISTORY_KEY = "cv-studio-history-v1";
+const RESUME_LAYOUTS = [
+  { id: "modern", name: "Modern", description: "Balanced and versatile" },
+  { id: "executive", name: "Executive", description: "Formal and composed" },
+  { id: "minimal", name: "Minimal", description: "Quiet and spacious" },
+  { id: "editorial", name: "Editorial", description: "Expressive hierarchy" },
+  { id: "sidebar", name: "Sidebar", description: "Structured identity rail" },
+  { id: "technical", name: "Technical", description: "Precise and systematic" },
+  { id: "swiss", name: "Swiss", description: "Bold modernist grid" },
+  { id: "compact", name: "Compact", description: "Dense and efficient" },
+  { id: "bold", name: "Bold", description: "Confident color blocks" },
+  { id: "classic", name: "Classic", description: "Traditional and timeless" },
+];
+const GALLERY_SAMPLE = {
+  basics: {
+    documentLabel: "Résumé",
+    name: "Jordan Morgan",
+    title: "Senior Product Engineer",
+    tagline: "Strategy · Design · Delivery · Leadership",
+    location: "Austin, TX",
+    phone: "555-0100",
+    email: "jordan@example.com",
+    portfolio: "jordan.dev",
+  },
+  summary: "Product-minded engineer with 10+ years of experience turning complex business needs into clear, dependable digital experiences. Trusted to lead cross-functional delivery, improve operations, and mentor high-performing teams.",
+  achievements: [
+    { value: "40%", label: "lower operating costs" },
+    { value: "3x", label: "faster delivery" },
+    { value: "12M+", label: "monthly users" },
+    { value: "99.9%", label: "availability" },
+  ],
+  skills: [
+    { category: "Strategy", items: "Roadmaps, Discovery, Analytics" },
+    { category: "Delivery", items: "Product, Design, Engineering" },
+    { category: "Technology", items: "Cloud, Web, APIs" },
+    { category: "Leadership", items: "Mentoring, Facilitation" },
+    { category: "Operations", items: "Analytics, Automation, Quality" },
+    { category: "Collaboration", items: "Stakeholders, Workshops, Research" },
+  ],
+  experience: [
+    {
+      company: "Northstar Labs",
+      role: "Senior Product Engineer",
+      dates: "2021 — Present",
+      location: "Remote",
+      bullets: [
+        "Led cross-functional delivery of reliable customer-facing platforms.",
+        "Improved performance and reduced operating costs through automation.",
+        "Mentored engineers and established reusable delivery practices.",
+      ],
+    },
+    {
+      company: "Fieldwork Studio",
+      role: "Product Engineer",
+      dates: "2018 — 2021",
+      location: "Austin, TX",
+      bullets: [
+        "Built accessible digital products for growing organizations.",
+        "Partnered with design and product teams from discovery through launch.",
+        "Introduced customer research and analytics into roadmap decisions.",
+      ],
+    },
+    {
+      company: "Atlas Group",
+      role: "Product Engineer",
+      dates: "2015 — 2018",
+      location: "Chicago, IL",
+      bullets: [
+        "Modernized core workflows used by distributed operations teams.",
+        "Created shared components that accelerated product development.",
+        "Improved release quality through automated testing and monitoring.",
+      ],
+    },
+    {
+      company: "Civic Works",
+      role: "Associate Engineer",
+      dates: "2012 — 2015",
+      location: "Chicago, IL",
+      bullets: [
+        "Delivered responsive web experiences for public-facing programs.",
+        "Collaborated with stakeholders to translate policy into usable tools.",
+        "Supported production systems and continuous improvement initiatives.",
+      ],
+    },
+  ],
+};
 const clone = (value) => JSON.parse(JSON.stringify(value));
 let data = clone(defaultData);
+let documentName = localStorage.getItem(DOCUMENT_NAME_KEY) ?? "Untitled résumé";
 let zoom = 0.82;
 let textScale = Number.parseFloat(localStorage.getItem(TEXT_SCALE_KEY) ?? String(TEXT_SCALE_BASE));
 let previousAiVersion = null;
@@ -159,9 +246,9 @@ function renderPreview() {
         </address>
       </header>
       <p class="resume-tagline">${escapeHtml(data.basics.tagline)}</p>
-      <section>${sectionTitle("Profile")}<p class="summary-copy">${escapeHtml(data.summary)}</p></section>
-      ${data.achievements?.length ? `<section>${sectionTitle("Selected impact")}<div class="achievement-grid">${data.achievements.map((item) => `<div><strong>${escapeHtml(item.value)}</strong><span>${escapeHtml(item.label)}</span></div>`).join("")}</div></section>` : ""}
-      <section>${sectionTitle("Core competencies")}<div class="skills-grid">${data.skills.map((skill) => `<div><strong>${escapeHtml(skill.category)}</strong><span>${escapeHtml(skill.items)}</span></div>`).join("")}</div></section>
+      <section class="profile-section">${sectionTitle("Profile")}<p class="summary-copy">${escapeHtml(data.summary)}</p></section>
+      ${data.achievements?.length ? `<section class="impact-section">${sectionTitle("Selected impact")}<div class="achievement-grid">${data.achievements.map((item) => `<div><strong>${escapeHtml(item.value)}</strong><span>${escapeHtml(item.label)}</span></div>`).join("")}</div></section>` : ""}
+      <section class="skills-section">${sectionTitle("Core competencies")}<div class="skills-grid">${data.skills.map((skill) => `<div><strong>${escapeHtml(skill.category)}</strong><span>${escapeHtml(skill.items)}</span></div>`).join("")}</div></section>
       <section class="experience-section">${sectionTitle("Professional experience")}${experienceHtml(firstRoles)}</section>
       <footer><span>${escapeHtml(data.basics.name)}</span><span>01 / 02</span></footer>
     </article>
@@ -201,6 +288,7 @@ function markDirty(message = "Unsaved changes") {
 function createVersion(label, force = false) {
   const created = versionHistory.snapshot({
     data,
+    documentName,
     theme: document.documentElement.dataset.resumeTheme ?? "blue",
     layout: document.documentElement.dataset.resumeLayout ?? "modern",
     textScale,
@@ -213,6 +301,7 @@ function createVersion(label, force = false) {
 function saveResume() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(DOCUMENT_NAME_KEY, documentName);
     localStorage.setItem(THEME_KEY, document.documentElement.dataset.resumeTheme ?? "blue");
     localStorage.setItem(LAYOUT_KEY, document.documentElement.dataset.resumeLayout ?? "modern");
     localStorage.setItem(TEXT_SCALE_KEY, String(textScale));
@@ -312,9 +401,11 @@ window.addEventListener("beforeunload", (event) => {
   event.preventDefault();
 });
 document.querySelector("#documentName").addEventListener("click", () => {
-  const current = document.querySelector("#documentName").childNodes[0].textContent.trim();
-  const next = prompt("Document name", current);
-  if (next?.trim()) document.querySelector("#documentName").childNodes[0].textContent = `${next.trim()} `;
+  const next = prompt("Document name", documentName);
+  if (!next?.trim()) return;
+  documentName = next.trim();
+  document.querySelector("#documentName").childNodes[0].textContent = `${documentName} `;
+  markDirty("Document title not saved");
 });
 
 function showToast(message) {
@@ -332,11 +423,91 @@ function setTheme(theme, record = true) {
   if (record) markDirty("Color change not saved");
 }
 
+function galleryPreviewDocument(layout, theme) {
+  const sample = GALLERY_SAMPLE;
+  const stylesUrl = new URL("styles.css", window.location.href).href;
+  const layoutsUrl = new URL("resume-layouts.css", window.location.href).href;
+  return `<!doctype html>
+    <html data-resume-layout="${layout}" data-resume-theme="${theme}" style="--resume-type-scale:1.15">
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="${stylesUrl}">
+        <link rel="stylesheet" href="${layoutsUrl}">
+        <style>
+          html, body { width: 816px; height: 1056px; overflow: hidden; background: #fff; }
+          .resume-page { transform: none !important; margin: 0 !important; box-shadow: none !important; }
+        </style>
+      </head>
+      <body>
+        <article class="resume-page">
+          <header class="resume-header">
+            <div class="header-main"><p class="resume-kicker">${sample.basics.documentLabel} · ${new Date().getFullYear()}</p><h1>${sample.basics.name}</h1><h2>${sample.basics.title}</h2></div>
+            <address><span>${sample.basics.location}</span><span>${sample.basics.phone}</span><span>${sample.basics.email}</span><span>${sample.basics.portfolio}</span></address>
+          </header>
+          <p class="resume-tagline">${sample.basics.tagline}</p>
+          <section class="profile-section">${sectionTitle("Profile")}<p class="summary-copy">${sample.summary}</p></section>
+          <section class="impact-section">${sectionTitle("Selected impact")}<div class="achievement-grid">${sample.achievements.map((item) => `<div><strong>${item.value}</strong><span>${item.label}</span></div>`).join("")}</div></section>
+          <section class="skills-section">${sectionTitle("Core competencies")}<div class="skills-grid">${sample.skills.map((skill) => `<div><strong>${skill.category}</strong><span>${skill.items}</span></div>`).join("")}</div></section>
+          <section class="experience-section">${sectionTitle("Professional experience")}${experienceHtml(sample.experience)}</section>
+          <footer><span>${sample.basics.name}</span><span>01 / 02</span></footer>
+        </article>
+        <script>
+          function fitSamplePage() {
+            const section = document.querySelector(".experience-section");
+            const footer = document.querySelector("footer");
+            let role = section.querySelector(".resume-role:last-child");
+            while (role && role.getBoundingClientRect().bottom > footer.getBoundingClientRect().top - 12) {
+              role.remove();
+              role = section.querySelector(".resume-role:last-child");
+            }
+          }
+          fitSamplePage();
+          document.fonts?.ready.then(fitSamplePage);
+        </script>
+      </body>
+    </html>`;
+}
+
+function renderDesignGallery() {
+  const selectedLayout = document.documentElement.dataset.resumeLayout ?? "modern";
+  const theme = document.documentElement.dataset.resumeTheme ?? "blue";
+  document.querySelector("#designGrid").innerHTML = RESUME_LAYOUTS.map(
+    ({ id, name, description }) => `
+      <button class="design-card${id === selectedLayout ? " selected" : ""}" type="button" data-select-layout="${id}" aria-label="Use ${name} design" aria-pressed="${id === selectedLayout}">
+        <span class="design-live-preview" aria-hidden="true"><iframe class="design-live-frame" data-preview-layout="${id}" title="${name} résumé preview" tabindex="-1"></iframe></span>
+        <span class="design-card-copy"><strong>${name}</strong><small>${description}</small></span>
+      </button>`,
+  ).join("");
+  document.querySelectorAll(".design-live-frame").forEach((frame) => {
+    frame.srcdoc = galleryPreviewDocument(frame.dataset.previewLayout, theme);
+  });
+}
+
 function setLayout(layout, record = true) {
-  document.documentElement.dataset.resumeLayout = layout;
-  document.querySelector("#layoutSelect").value = layout;
+  const selectedLayout = RESUME_LAYOUTS.find((item) => item.id === layout) ?? RESUME_LAYOUTS[0];
+  document.documentElement.dataset.resumeLayout = selectedLayout.id;
+  document.querySelector("#currentDesignName").textContent = selectedLayout.name;
+  document.querySelectorAll(".design-card").forEach((card) => {
+    const selected = card.dataset.selectLayout === selectedLayout.id;
+    card.classList.toggle("selected", selected);
+    card.setAttribute("aria-pressed", String(selected));
+  });
   renderPreview();
   if (record) markDirty("Design change not saved");
+}
+
+const designModal = document.querySelector("#designModal");
+const designBackdrop = document.querySelector("#designBackdrop");
+function toggleDesignGallery(open) {
+  if (open) renderDesignGallery();
+  designModal.classList.toggle("open", open);
+  designBackdrop.classList.toggle("open", open);
+  designModal.setAttribute("aria-hidden", String(!open));
+  if (open) {
+    designModal.querySelector(".design-card.selected")?.focus();
+  } else {
+    document.querySelector("#openDesignButton").focus();
+  }
 }
 
 function setTextScale(nextScale, record = true) {
@@ -359,7 +530,18 @@ document.querySelector("#textSizeUp").addEventListener("click", () => setTextSca
 document.querySelectorAll(".color-swatch").forEach((swatch) => {
   swatch.addEventListener("click", () => setTheme(swatch.dataset.theme));
 });
-document.querySelector("#layoutSelect").addEventListener("change", (event) => setLayout(event.target.value));
+document.querySelector("#openDesignButton").addEventListener("click", () => toggleDesignGallery(true));
+document.querySelector("#closeDesignButton").addEventListener("click", () => toggleDesignGallery(false));
+designBackdrop.addEventListener("click", () => toggleDesignGallery(false));
+document.querySelector("#designGrid").addEventListener("click", (event) => {
+  const card = event.target.closest("[data-select-layout]");
+  if (!card) return;
+  setLayout(card.dataset.selectLayout);
+  toggleDesignGallery(false);
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && designModal.classList.contains("open")) toggleDesignGallery(false);
+});
 
 const aiDrawer = document.querySelector("#aiDrawer");
 const aiBackdrop = document.querySelector("#aiBackdrop");
@@ -544,6 +726,8 @@ document.querySelector("#historyList").addEventListener("click", (event) => {
   if (!version) return;
 
   data = clone(version.data);
+  documentName = version.documentName ?? "Untitled résumé";
+  document.querySelector("#documentName").childNodes[0].textContent = `${documentName} `;
   setTheme(version.theme ?? "blue", false);
   setLayout(version.layout ?? "modern", false);
   setTextScale(version.textScale ?? TEXT_SCALE_BASE, false);
@@ -556,6 +740,7 @@ document.querySelector("#historyList").addEventListener("click", (event) => {
 });
 
 fillEditor();
+document.querySelector("#documentName").childNodes[0].textContent = `${documentName} `;
 setTheme(localStorage.getItem(THEME_KEY) ?? "blue", false);
 setLayout(localStorage.getItem(LAYOUT_KEY) ?? "modern", false);
 setTextScale(textScale, false);
