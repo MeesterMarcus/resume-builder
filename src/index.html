@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A polished, privacy-first HTML resume builder with ATS-friendly PDF export." />
+    <title>CV Studio — Resume Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="CV Studio home"><span class="brand-mark">C</span><span>CV Studio</span></a>
+      <div class="document-state">
+        <button class="document-name" id="documentName" aria-label="Rename document">Marcus — Senior Cloud Engineer <span>✎</span></button>
+        <span class="save-state"><i></i><span id="saveStatus">Saved locally</span></span>
+      </div>
+      <div class="top-actions">
+        <button class="button button-ghost" id="resetButton">Reset</button>
+        <button class="button button-ai" id="openAiButton"><span>✦</span> Ask AI</button>
+        <button class="button button-primary" id="exportButton"><span>↓</span> Export PDF</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="editor-panel" aria-label="Resume editor">
+        <div class="editor-intro">
+          <div><p class="eyebrow">Resume editor</p><h1>Shape your story.</h1></div>
+          <span class="completion" id="completion">100%</span>
+        </div>
+        <div class="progress-track"><span id="progressBar"></span></div>
+
+        <nav class="section-tabs" aria-label="Editor sections">
+          <button class="tab active" data-target="basics"><span>01</span> Basics</button>
+          <button class="tab" data-target="summary"><span>02</span> Summary</button>
+          <button class="tab" data-target="experience"><span>03</span> Experience</button>
+          <button class="tab" data-target="skills"><span>04</span> Skills</button>
+        </nav>
+
+        <form id="resumeForm">
+          <section class="form-section active" data-section="basics">
+            <div class="section-heading"><h2>Personal details</h2><p>The essentials hiring teams need.</p></div>
+            <label>Full name<input name="basics.name" autocomplete="name" /></label>
+            <label>Professional title<input name="basics.title" /></label>
+            <label>Specialties<input name="basics.tagline" /></label>
+            <div class="field-row">
+              <label>Location<input name="basics.location" autocomplete="address-level2" /></label>
+              <label>Phone<input name="basics.phone" autocomplete="tel" /></label>
+            </div>
+            <label>Email<input name="basics.email" type="email" autocomplete="email" /></label>
+            <label>Portfolio<input name="basics.portfolio" autocomplete="url" /></label>
+          </section>
+
+          <section class="form-section" data-section="summary">
+            <div class="section-heading"><h2>Professional summary</h2><p>Keep it direct, specific, and human.</p></div>
+            <label>Summary<textarea name="summary" rows="10"></textarea><span class="field-hint"><span id="summaryCount">0</span> characters</span></label>
+            <div class="tip"><span>✦</span><p><strong>Make the first scan count.</strong> Lead with scope, strengths, and the business outcomes you repeatedly create.</p></div>
+          </section>
+
+          <section class="form-section" data-section="experience">
+            <div class="section-heading"><h2>Experience</h2><p>Your recent roles carry the most weight.</p></div>
+            <div id="experienceFields"></div>
+          </section>
+
+          <section class="form-section" data-section="skills">
+            <div class="section-heading"><h2>Core competencies</h2><p>Use the language your target roles use.</p></div>
+            <div id="skillFields"></div>
+          </section>
+        </form>
+      </aside>
+
+      <section class="preview-panel" aria-label="Resume preview">
+        <div class="preview-toolbar">
+          <div>
+            <p class="eyebrow">Live preview</p>
+            <p class="preview-note"><span></span> ATS-friendly text</p>
+          </div>
+          <div class="preview-actions">
+            <div class="color-picker" aria-label="Resume accent color">
+              <span>Color</span>
+              <button class="color-swatch active" data-theme="blue" style="--swatch:#3564cc" aria-label="Blue"></button>
+              <button class="color-swatch" data-theme="slate" style="--swatch:#44546f" aria-label="Slate"></button>
+              <button class="color-swatch" data-theme="teal" style="--swatch:#167d7f" aria-label="Teal"></button>
+              <button class="color-swatch" data-theme="green" style="--swatch:#287a52" aria-label="Green"></button>
+              <button class="color-swatch" data-theme="plum" style="--swatch:#76507c" aria-label="Plum"></button>
+            </div>
+            <div class="zoom-controls" aria-label="Preview zoom">
+              <button id="zoomOut" aria-label="Zoom out">−</button>
+              <output id="zoomValue">82%</output>
+              <button id="zoomIn" aria-label="Zoom in">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="paper-stage">
+          <div class="paper-stack" id="resumePreview"></div>
+        </div>
+      </section>
+    </main>
+
+    <div class="ai-backdrop" id="aiBackdrop"></div>
+    <aside class="ai-drawer" id="aiDrawer" aria-hidden="true" aria-labelledby="aiTitle">
+      <header class="ai-header">
+        <div class="ai-orb">✦</div>
+        <div><p class="eyebrow">AI résumé partner</p><h2 id="aiTitle">What should we improve?</h2></div>
+        <button class="icon-button" id="closeAiButton" aria-label="Close AI assistant">×</button>
+      </header>
+
+      <div class="ai-content">
+        <button class="optimize-card" id="optimizeButton">
+          <span class="optimize-icon">↗</span>
+          <span><strong>Optimize my résumé</strong><small>Improve impact, clarity, keywords, and concision in one pass.</small></span>
+          <span>→</span>
+        </button>
+
+        <div class="ai-divider"><span>or give AI more context</span></div>
+
+        <div class="upload-grid">
+          <label class="drop-zone" id="resumeDropZone">
+            <input type="file" id="resumeFile" accept=".pdf,.doc,.docx,.txt,.md" />
+            <span class="drop-icon">↑</span>
+            <strong>Existing résumé</strong>
+            <small id="resumeFileName">PDF, DOCX, or text</small>
+          </label>
+          <label class="drop-zone" id="jobDropZone">
+            <input type="file" id="jobFile" accept=".pdf,.doc,.docx,.txt,.md" />
+            <span class="drop-icon">◎</span>
+            <strong>Job description</strong>
+            <small id="jobFileName">Upload the target role</small>
+          </label>
+        </div>
+
+        <label class="ai-prompt-label" for="aiPrompt">Ask for any change</label>
+        <div class="prompt-box">
+          <textarea id="aiPrompt" rows="5" placeholder="e.g. Tailor this for a Staff Engineer role. Emphasize architecture and leadership without overstating anything."></textarea>
+          <button id="sendAiButton" aria-label="Send prompt">↑</button>
+        </div>
+
+        <div class="prompt-suggestions">
+          <button>Make my bullets more impactful</button>
+          <button>Tailor this to the job description</button>
+          <button>Shorten the summary</button>
+        </div>
+
+        <div class="ai-status" id="aiStatus" role="status" aria-live="polite">
+          <span class="ai-spinner"></span><p><strong>Improving your résumé…</strong><small>Checking every section for clarity and relevance.</small></p>
+        </div>
+      </div>
+
+      <footer class="ai-footer">
+        <span>✦</span>
+        <p>AI can make mistakes. Review every change before exporting.</p>
+      </footer>
+    </aside>
+
+    <div class="change-bar" id="changeBar">
+      <span><strong>AI changes applied</strong> Review the live preview before exporting.</span>
+      <button id="undoAiButton">Undo</button>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

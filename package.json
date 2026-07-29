@@ -1,0 +1,15 @@
+{
+  "name": "resume-builder",
+  "version": "1.0.0",
+  "description": "HTML/CSS resume builder with PDF export.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node src/build.js",
+    "preview": "node src/server.js",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}
