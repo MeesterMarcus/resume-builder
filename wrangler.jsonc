@@ -1,8 +1,13 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "resume-builder",
+  "main": "./worker/index.js",
   "compatibility_date": "2026-07-29",
-  "pages_build_output_dir": "./dist/site",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist/site",
+    "run_worker_first": ["/api/*"]
+  },
   "vars": {
     "AI_ALLOWED_IPS": "136.50.177.197"
   }

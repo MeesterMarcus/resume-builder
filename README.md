@@ -35,40 +35,38 @@ npm run build:pdf
 
 The generated file is saved to `dist/marcus-lorenzana-resume.pdf`. You can also use **Export PDF** in the app and choose “Save as PDF” in the browser print dialog.
 
-## Cloudflare Pages
+## Cloudflare
 
-The production build uses static assets plus Pages Functions for the AI routes.
+The production build deploys a Cloudflare Worker and static assets as one unit. The Worker handles `/api/*`; matching files are served directly from Cloudflare's asset infrastructure.
 
 ```bash
 nvm use
 npm install
 npm run build
-npm run preview:pages
+npm run preview:cloudflare
 ```
 
-For Cloudflare Git integration:
+For Cloudflare Builds:
 
 - Build command: `npm run build`
-- Build output directory: `dist/site`
 - Root directory: `/`
 - Node version: `22`
+- Deploy command: `npx wrangler deploy`
 
-Add `OPENAI_API_KEY` as an encrypted secret and `OPENAI_MODEL` as a variable under **Workers & Pages → resume-builder → Settings → Variables and Secrets**. Configure both Preview and Production.
+Add `OPENAI_API_KEY` as an encrypted secret and `OPENAI_MODEL` as a variable under **Workers & Pages → resume-builder → Settings → Variables and Secrets**.
 
 AI revisions are temporarily restricted to the comma-separated IP addresses in `AI_ALLOWED_IPS`. The checked-in Wrangler configuration currently allows `136.50.177.197`. Update that value whenever the trusted public IP changes. Localhost remains allowed for development.
 
-For local Pages Functions development, copy `.dev.vars.example` to `.dev.vars` and supply development credentials. Never commit `.dev.vars` or `.env`.
+For local Worker development, copy `.dev.vars.example` to `.dev.vars` and supply development credentials. Never commit `.dev.vars` or `.env`.
 
-After creating the Pages project, deploy from the CLI with:
+Deploy from the CLI with:
 
 ```bash
-npm run deploy:pages
+npm run deploy:cloudflare
 ```
 
 If Cloudflare asks for a deploy command in its build settings, use:
 
 ```bash
-npm run deploy:pages
+npx wrangler deploy
 ```
-
-Do not use `npx wrangler deploy`; that command targets Workers rather than Pages.

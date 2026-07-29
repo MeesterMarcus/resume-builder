@@ -8,12 +8,12 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "node scripts/build-pages.js",
-    "build:pages": "npm run build",
+    "build": "node scripts/build-cloudflare.js",
+    "build:cloudflare": "npm run build",
     "build:pdf": "node src/build.js",
-    "deploy:pages": "npm run build && wrangler pages deploy dist/site --project-name resume-builder",
+    "deploy:cloudflare": "npm run build && wrangler deploy",
     "preview": "node src/server.js",
-    "preview:pages": "npm run build:pages && wrangler pages dev",
+    "preview:cloudflare": "npm run build && wrangler dev",
     "clean": "rm -rf dist"
   },
   "devDependencies": {
