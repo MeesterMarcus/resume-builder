@@ -48,6 +48,14 @@ async function readJson(request) {
 }
 
 const server = http.createServer(async (request, response) => {
+  if (request.method === "GET" && request.url === "/api/ai/status") {
+    sendJson(response, 200, {
+      configured: Boolean(config.openAiApiKey && config.openAiModel),
+      model: config.openAiModel ?? null,
+    });
+    return;
+  }
+
   if (request.method === "POST" && request.url === "/api/ai/revise") {
     try {
       const result = await reviseResume(await readJson(request));

@@ -2,6 +2,17 @@
 
 A privacy-first HTML/CSS resume editor with a polished, ATS-friendly two-page layout. Changes update the preview instantly and save in the browser.
 
+## AI features
+
+Create a `.env` file in the project root:
+
+```bash
+OPENAI_API_KEY=your_api_key
+OPENAI_MODEL=your_model
+```
+
+The Node server keeps the API key out of the browser. The AI assistant can optimize the current résumé, follow a freeform editing request, or use an uploaded résumé and job description as additional context.
+
 ## Install
 
 ```bash

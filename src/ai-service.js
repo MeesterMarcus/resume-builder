@@ -16,7 +16,7 @@ const resumeSchema = {
     summary: { type: "string" },
     achievements: {
       type: "array",
-      minItems: 4,
+      minItems: 0,
       maxItems: 4,
       items: {
         type: "object",
@@ -73,7 +73,9 @@ Rules:
 - Write concise, credible, ATS-friendly language. Avoid keyword stuffing and generic filler.
 - Prefer strong verbs and measurable outcomes already supported by the source material.
 - Keep the result suitable for a polished two-page senior engineering resume.
-- Return exactly four high-signal achievements.
+- Return zero to four high-signal achievements. Include only outcomes explicitly supported by the source material.
+- Never fabricate a number. When no metrics exist, improve specificity using factual scope, ownership, complexity, users, systems, or responsibilities.
+- An empty achievements array is better than invented or generic achievements.
 - Do not add commentary outside the structured result.`;
 
 function buildUserContent({ action, currentResume, prompt, documents = [] }) {
@@ -143,4 +145,3 @@ export async function reviseResume(payload) {
 
   return JSON.parse(getOutputText(responseBody));
 }
-

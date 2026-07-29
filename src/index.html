@@ -18,7 +18,9 @@
         <span class="save-state"><i></i><span id="saveStatus">Saved locally</span></span>
       </div>
       <div class="top-actions">
+        <button class="button button-ghost" id="openHistoryButton"><span>↶</span> History</button>
         <button class="button button-ghost" id="resetButton">Reset</button>
+        <button class="button button-save" id="saveButton"><span>✓</span> Save</button>
         <button class="button button-ai" id="openAiButton"><span>✦</span> Ask AI</button>
         <button class="button button-primary" id="exportButton"><span>↓</span> Export PDF</button>
       </div>
@@ -60,12 +62,18 @@
           </section>
 
           <section class="form-section" data-section="experience">
-            <div class="section-heading"><h2>Experience</h2><p>Your recent roles carry the most weight.</p></div>
+            <div class="section-heading section-heading-action">
+              <div><h2>Experience</h2><p>Your recent roles carry the most weight.</p></div>
+              <button class="add-button" type="button" id="addExperienceButton"><span>+</span> Add role</button>
+            </div>
             <div id="experienceFields"></div>
           </section>
 
           <section class="form-section" data-section="skills">
-            <div class="section-heading"><h2>Core competencies</h2><p>Use the language your target roles use.</p></div>
+            <div class="section-heading section-heading-action">
+              <div><h2>Core competencies</h2><p>Use the language your target roles use.</p></div>
+              <button class="add-button" type="button" id="addSkillButton"><span>+</span> Add group</button>
+            </div>
             <div id="skillFields"></div>
           </section>
         </form>
@@ -152,6 +160,22 @@
         <span>✦</span>
         <p>AI can make mistakes. Review every change before exporting.</p>
       </footer>
+    </aside>
+
+    <div class="history-backdrop" id="historyBackdrop"></div>
+    <aside class="history-drawer" id="historyDrawer" aria-hidden="true" aria-labelledby="historyTitle">
+      <header class="history-header">
+        <div>
+          <p class="eyebrow">Version history</p>
+          <h2 id="historyTitle">Recent changes</h2>
+        </div>
+        <button class="icon-button" id="closeHistoryButton" aria-label="Close version history">×</button>
+      </header>
+      <div class="history-intro">
+        <p>CV Studio keeps the last 10 versions you explicitly save on this device. Restored versions remain drafts until you save them again.</p>
+      </div>
+      <div class="history-list" id="historyList"></div>
+      <footer class="history-footer"><span>●</span> Stored locally in this browser</footer>
     </aside>
 
     <div class="change-bar" id="changeBar">
