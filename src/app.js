@@ -30,7 +30,8 @@ function fillEditor() {
     const path = field.name.split(".");
     let value = data;
     path.forEach((key) => (value = value?.[key]));
-    field.value = value ?? "";
+    if (field.type === "checkbox") field.checked = Boolean(value);
+    else field.value = value ?? "";
   });
 
   document.querySelector("#experienceFields").innerHTML = data.experience
@@ -61,6 +62,7 @@ function fillEditor() {
     )
     .join("");
   document.querySelector("#summaryCount").textContent = data.summary.length;
+  document.querySelector("#closingEditorFields").classList.toggle("disabled", !data.closingStatement.enabled);
 }
 
 const sectionTitle = (title) => `<h2 class="resume-section-title">${title}</h2>`;
@@ -81,7 +83,8 @@ function renderPreview() {
     data.achievements.length ||
     data.skills.length ||
     data.experience.length ||
-    Object.values(data.education).some((value) => value.trim());
+    Object.values(data.education).some((value) => value.trim()) ||
+    (data.closingStatement.enabled && data.closingStatement.text.trim());
 
   if (!hasResumeContent) {
     preview.innerHTML = `
@@ -101,7 +104,7 @@ function renderPreview() {
   preview.innerHTML = `
     <article class="resume-page">
       <header class="resume-header">
-        <div class="header-main"><p class="resume-kicker">Curriculum Vitae · 2026</p><h1>${escapeHtml(data.basics.name)}</h1><h2>${escapeHtml(data.basics.title)}</h2></div>
+        <div class="header-main">${data.basics.documentLabel?.trim() ? `<p class="resume-kicker">${escapeHtml(data.basics.documentLabel)} · ${new Date().getFullYear()}</p>` : ""}<h1>${escapeHtml(data.basics.name)}</h1><h2>${escapeHtml(data.basics.title)}</h2></div>
         <address>
           <span>${escapeHtml(data.basics.location)}</span><span>${escapeHtml(data.basics.phone)}</span>
           <a href="mailto:${escapeHtml(data.basics.email)}">${escapeHtml(data.basics.email)}</a>
@@ -119,7 +122,7 @@ function renderPreview() {
       <div class="page-two-heading"><span>${escapeHtml(data.basics.name)}</span><span>${escapeHtml(data.basics.title)}</span></div>
       <section>${sectionTitle("Professional experience · continued")}${experienceHtml(secondRoles)}</section>
       <section class="education-section">${sectionTitle("Education")}<div class="education-row"><div><h3>${escapeHtml(data.education.school)}</h3><p>${escapeHtml(data.education.degree)}</p></div><strong>${escapeHtml(data.education.date)}</strong></div></section>
-      <section class="philosophy"><span>What I bring</span><p>Pragmatic architecture, clear technical leadership, and an instinct for turning complex systems into dependable products.</p></section>
+      ${data.closingStatement.enabled && data.closingStatement.text.trim() ? `<section class="philosophy"><span>${escapeHtml(data.closingStatement.label || "Professional value")}</span><p>${escapeHtml(data.closingStatement.text)}</p></section>` : ""}
       <footer><span>${escapeHtml(data.basics.name)}</span><span>02 / 02</span></footer>
     </article>`;
   preview.style.setProperty("--preview-scale", zoom);
@@ -173,8 +176,11 @@ function saveResume() {
 }
 
 form.addEventListener("input", (event) => {
-  setByPath(event.target.name, event.target.value);
+  setByPath(event.target.name, event.target.type === "checkbox" ? event.target.checked : event.target.value);
   if (event.target.name === "summary") document.querySelector("#summaryCount").textContent = event.target.value.length;
+  if (event.target.name === "closingStatement.enabled") {
+    document.querySelector("#closingEditorFields").classList.toggle("disabled", !event.target.checked);
+  }
   renderPreview();
   updateCompletion();
   markDirty();

@@ -71,8 +71,13 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname === "/api/ai/status" && request.method === "GET") {
+      const missing = [
+        !env.OPENAI_API_KEY && "OPENAI_API_KEY",
+        !env.OPENAI_MODEL && "OPENAI_MODEL",
+      ].filter(Boolean);
       return jsonResponse({
-        configured: Boolean(env.OPENAI_API_KEY && env.OPENAI_MODEL),
+        configured: missing.length === 0,
+        missing,
         model: env.OPENAI_MODEL ?? null,
       });
     }
@@ -88,4 +93,3 @@ export default {
     return env.ASSETS.fetch(request);
   },
 };
-

@@ -78,6 +78,19 @@ input:focus, textarea:focus { border-color: #8ca9f7; box-shadow: 0 0 0 3px #2f5f
 .tip { display: flex; gap: 12px; margin-top: 25px; padding: 16px; background: #f3f6ff; border-radius: 10px; color: #4d5c7d; }
 .tip > span { color: var(--blue); }
 .tip p { margin: 0; font-size: 12px; line-height: 1.5; }
+.closing-editor { margin-top: 24px; padding-top: 23px; border-top: 1px solid var(--line); }
+.closing-editor-heading { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 18px; }
+.closing-editor-heading h3 { margin: 0 0 4px; font: 700 14px Manrope; }
+.closing-editor-heading p { margin: 0; color: var(--muted); font-size: 11px; }
+.toggle { display: flex; align-items: center; gap: 7px; margin: 0; cursor: pointer; }
+.toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.toggle span { position: relative; width: 34px; height: 19px; border-radius: 20px; background: #cfd5df; transition: .2s; }
+.toggle span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 13px; height: 13px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #1018282b; transition: .2s; }
+.toggle input:checked + span { background: var(--blue); }
+.toggle input:checked + span::after { transform: translateX(15px); }
+.toggle em { color: #667085; font-size: 10px; font-style: normal; }
+.closing-editor-fields { transition: opacity .2s; }
+.closing-editor-fields.disabled { opacity: .42; pointer-events: none; }
 .role-card { position: relative; border: 1px solid var(--line); border-radius: 12px; margin: 0 0 18px; padding: 18px; }
 .role-card legend { padding: 0 8px; font: 700 13px Manrope; }
 .role-card legend span { color: var(--blue); font-size: 9px; margin-right: 8px; }
@@ -147,8 +160,8 @@ input:focus, textarea:focus { border-color: #8ca9f7; box-shadow: 0 0 0 3px #2f5f
 .education-section { margin-top: 29px !important; }
 .education-row { display: flex; justify-content: space-between; }
 .education-row strong { font-size: 8px; color: #687388; }
-.philosophy { margin-top: 42px !important; padding: 31px; background: #1e3155; color: #fff; }
-.philosophy span { text-transform: uppercase; letter-spacing: .16em; color: #9db9f6; font-size: 7.5px; font-weight: 800; }
+.philosophy { margin-top: 42px !important; padding: 31px; background: var(--accent-strong); color: #fff; }
+.philosophy span { text-transform: uppercase; letter-spacing: .16em; color: #fff; opacity: .68; font-size: 7.5px; font-weight: 800; }
 .philosophy p { max-width: 565px; margin: 11px 0 0; font: 600 16px/1.5 Manrope; }
 .toast { position: fixed; right: 24px; bottom: 24px; padding: 12px 17px; background: #17233d; color: #fff; border-radius: 9px; box-shadow: 0 8px 25px #17233d3d; font-size: 12px; opacity: 0; transform: translateY(10px); pointer-events: none; transition: .2s; z-index: 20; }
 .toast.show { opacity: 1; transform: none; }

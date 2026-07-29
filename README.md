@@ -53,7 +53,7 @@ For Cloudflare Builds:
 - Node version: `22`
 - Deploy command: `npx wrangler deploy`
 
-Add `OPENAI_API_KEY` as an encrypted secret and `OPENAI_MODEL` as a variable under **Workers & Pages → resume-builder → Settings → Variables and Secrets**.
+Add `OPENAI_API_KEY` as an encrypted **Worker runtime secret** under **Workers & Pages → Overview → resume-builder → Settings → Variables and Secrets**. Do not add it under Workers Builds → Build configuration; Workers Builds variables are not available to the running Worker. `OPENAI_MODEL` and `AI_ALLOWED_IPS` are non-secret values managed in `wrangler.jsonc`.
 
 AI revisions are temporarily restricted to the comma-separated IP addresses in `AI_ALLOWED_IPS`. The checked-in Wrangler configuration currently allows `136.50.177.197`. Update that value whenever the trusted public IP changes. Localhost remains allowed for development.
 

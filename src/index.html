@@ -46,6 +46,7 @@
             <div class="section-heading"><h2>Personal details</h2><p>The essentials hiring teams need.</p></div>
             <label>Full name<input name="basics.name" autocomplete="name" /></label>
             <label>Professional title<input name="basics.title" /></label>
+            <label>Header label<input name="basics.documentLabel" placeholder="e.g. Curriculum Vitae, Résumé, Professional Profile" /></label>
             <label>Specialties<input name="basics.tagline" /></label>
             <div class="field-row">
               <label>Location<input name="basics.location" autocomplete="address-level2" /></label>
@@ -59,6 +60,20 @@
             <div class="section-heading"><h2>Professional summary</h2><p>Keep it direct, specific, and human.</p></div>
             <label>Summary<textarea name="summary" rows="10"></textarea><span class="field-hint"><span id="summaryCount">0</span> characters</span></label>
             <div class="tip"><span>✦</span><p><strong>Make the first scan count.</strong> Lead with scope, strengths, and the business outcomes you repeatedly create.</p></div>
+            <div class="closing-editor">
+              <div class="closing-editor-heading">
+                <div><h3>Closing statement</h3><p>An optional final value proposition.</p></div>
+                <label class="toggle">
+                  <input type="checkbox" name="closingStatement.enabled" />
+                  <span></span>
+                  <em>Show</em>
+                </label>
+              </div>
+              <div class="closing-editor-fields" id="closingEditorFields">
+                <label>Label<input name="closingStatement.label" placeholder="e.g. What I bring, Leadership approach"></label>
+                <label>Statement<textarea name="closingStatement.text" rows="4" placeholder="A concise, role-specific statement that adds something new."></textarea></label>
+              </div>
+            </div>
           </section>
 
           <section class="form-section" data-section="experience">

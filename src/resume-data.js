@@ -2,6 +2,7 @@ export const resumeData = {
   basics: {
     name: "",
     title: "",
+    documentLabel: "",
     tagline: "",
     location: "",
     phone: "",
@@ -16,5 +17,10 @@ export const resumeData = {
     school: "",
     degree: "",
     date: "",
+  },
+  closingStatement: {
+    enabled: false,
+    label: "",
+    text: "",
   },
 };
