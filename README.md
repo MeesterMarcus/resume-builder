@@ -64,3 +64,11 @@ After creating the Pages project, deploy from the CLI with:
 ```bash
 npm run deploy:pages
 ```
+
+If Cloudflare asks for a deploy command in its build settings, use:
+
+```bash
+npm run deploy:pages
+```
+
+Do not use `npx wrangler deploy`; that command targets Workers rather than Pages.
