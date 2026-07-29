@@ -1,0 +1,262 @@
+/* Resume layout systems share the same semantic HTML and palette variables. */
+
+/* Executive — centered, formal, serif-led. */
+html[data-resume-layout="executive"] .resume-page {
+  padding: 54px 64px 48px;
+  color: #252a34;
+}
+html[data-resume-layout="executive"] .resume-header {
+  display: block;
+  padding-bottom: 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--accent);
+}
+html[data-resume-layout="executive"] .resume-kicker { margin-bottom: 12px; }
+html[data-resume-layout="executive"] .resume-header h1 {
+  font-family: Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -.025em;
+}
+html[data-resume-layout="executive"] .resume-header h2 { color: #454d5c; }
+html[data-resume-layout="executive"] .resume-header address {
+  min-width: 0;
+  margin-top: 13px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px 17px;
+  text-align: center;
+}
+html[data-resume-layout="executive"] .resume-tagline { text-align: center; }
+html[data-resume-layout="executive"] .resume-section-title {
+  justify-content: center;
+  font-family: Georgia, serif;
+  font-weight: 600;
+  letter-spacing: .12em;
+}
+html[data-resume-layout="executive"] .resume-section-title::before,
+html[data-resume-layout="executive"] .resume-section-title::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: #cfd3da;
+}
+html[data-resume-layout="executive"] .achievement-grid div {
+  text-align: center;
+  background: transparent;
+  border: 0;
+  border-top: 2px solid var(--accent);
+}
+html[data-resume-layout="executive"] .role-heading h3,
+html[data-resume-layout="executive"] .education-row h3 { font-family: Georgia, serif; }
+html[data-resume-layout="executive"] .page-two-heading {
+  justify-content: center;
+  gap: 24px;
+  border-bottom-width: 1px;
+  font-family: Georgia, serif;
+}
+html[data-resume-layout="executive"] .resume-page footer { left: 64px; right: 64px; }
+
+/* Minimal — quiet rules, generous white space, almost no decoration. */
+html[data-resume-layout="minimal"] .resume-page { padding: 58px 62px 48px; }
+html[data-resume-layout="minimal"] .resume-header { padding-bottom: 15px; border-bottom: 1px solid #d9dde4; }
+html[data-resume-layout="minimal"] .resume-header h1 { font-weight: 600; letter-spacing: -.035em; }
+html[data-resume-layout="minimal"] .resume-header h2 { color: #525d70; font-weight: 500; }
+html[data-resume-layout="minimal"] .resume-kicker,
+html[data-resume-layout="minimal"] .resume-tagline { letter-spacing: .1em; }
+html[data-resume-layout="minimal"] .resume-page section { margin-top: 25px; }
+html[data-resume-layout="minimal"] .resume-section-title { color: var(--accent); letter-spacing: .18em; }
+html[data-resume-layout="minimal"] .resume-section-title::after { background: transparent; }
+html[data-resume-layout="minimal"] .achievement-grid { gap: 20px; }
+html[data-resume-layout="minimal"] .achievement-grid div { padding: 4px 0 9px; background: transparent; border: 0; border-bottom: 1px solid #dfe3e8; }
+html[data-resume-layout="minimal"] .skills-grid div { grid-template-columns: 105px 1fr; }
+html[data-resume-layout="minimal"] .resume-role { margin-bottom: 20px; }
+html[data-resume-layout="minimal"] .resume-role li::marker { color: #9aa2af; }
+html[data-resume-layout="minimal"] .page-two-heading { border-bottom: 1px solid #d9dde4; }
+html[data-resume-layout="minimal"] .philosophy { background: var(--accent-soft); color: #273248; border-left: 3px solid var(--accent); }
+html[data-resume-layout="minimal"] .philosophy span { color: var(--accent); opacity: 1; }
+html[data-resume-layout="minimal"] .resume-page footer { left: 62px; right: 62px; }
+
+/* Editorial — oversized identity and strong left editorial rail. */
+html[data-resume-layout="editorial"] .resume-page { padding: 46px 58px 46px 76px; }
+html[data-resume-layout="editorial"] .resume-page::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 12px;
+  background: var(--accent);
+}
+html[data-resume-layout="editorial"] .resume-header { align-items: end; border-bottom: 0; padding-bottom: 8px; }
+html[data-resume-layout="editorial"] .resume-header h1 { font-size: calc(39px * var(--resume-type-scale)); line-height: .98; }
+html[data-resume-layout="editorial"] .resume-header h2 { color: #303a4d; }
+html[data-resume-layout="editorial"] .resume-kicker { display: inline-block; padding: 5px 8px; background: var(--accent); color: #fff; }
+html[data-resume-layout="editorial"] .resume-tagline { padding: 11px 0; border-top: 1px solid #ccd3dd; border-bottom: 1px solid #ccd3dd; }
+html[data-resume-layout="editorial"] .resume-section-title {
+  align-items: start;
+  color: var(--accent-strong);
+  font-size: calc(9.5px * var(--resume-type-scale));
+}
+html[data-resume-layout="editorial"] .resume-section-title::after { height: 3px; background: var(--accent); }
+html[data-resume-layout="editorial"] .achievement-grid { grid-template-columns: repeat(2, 1fr); }
+html[data-resume-layout="editorial"] .achievement-grid div { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 10px; }
+html[data-resume-layout="editorial"] .achievement-grid span { margin: 0; }
+html[data-resume-layout="editorial"] .role-heading { padding-left: 10px; border-left: 3px solid var(--accent); }
+html[data-resume-layout="editorial"] .page-two-heading { border-bottom: 3px solid var(--accent); }
+html[data-resume-layout="editorial"] .resume-page footer { left: 76px; }
+
+/* Sidebar — colored identity band and card-like supporting information. */
+html[data-resume-layout="sidebar"] .resume-page { padding: 0 58px 46px; }
+html[data-resume-layout="sidebar"] .resume-header {
+  margin: 0 -58px;
+  padding: 50px 58px 30px;
+  background: var(--accent-strong);
+  border: 0;
+  color: #fff;
+}
+html[data-resume-layout="sidebar"] .resume-kicker,
+html[data-resume-layout="sidebar"] .resume-header h2,
+html[data-resume-layout="sidebar"] .resume-header address,
+html[data-resume-layout="sidebar"] .resume-header a { color: #fff; }
+html[data-resume-layout="sidebar"] .resume-header address { opacity: .84; }
+html[data-resume-layout="sidebar"] .resume-tagline {
+  margin: 0 -58px 23px;
+  padding: 12px 58px;
+  background: var(--accent);
+  color: #fff;
+}
+html[data-resume-layout="sidebar"] .resume-section-title { color: var(--accent-strong); }
+html[data-resume-layout="sidebar"] .achievement-grid div { border: 0; border-radius: 5px; }
+html[data-resume-layout="sidebar"] .skills-grid { padding: 15px; background: var(--accent-soft); border-radius: 6px; }
+html[data-resume-layout="sidebar"] .resume-role { padding-left: 14px; border-left: 2px solid #dbe1e9; }
+html[data-resume-layout="sidebar"] .resume-role:hover { border-left-color: var(--accent); }
+html[data-resume-layout="sidebar"] .page-two-heading {
+  margin: 0 -58px;
+  padding: 28px 58px 18px;
+  background: var(--accent-strong);
+  border: 0;
+  color: #fff;
+}
+
+/* Technical — squared geometry and monospace-flavored information hierarchy. */
+html[data-resume-layout="technical"] .resume-page {
+  padding: 46px 54px;
+  background-image: linear-gradient(#eef1f5 1px, transparent 1px);
+  background-size: 100% 24px;
+}
+html[data-resume-layout="technical"] .resume-page::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 7px;
+  background: var(--accent);
+}
+html[data-resume-layout="technical"] .resume-header { border-bottom: 3px double #28354b; }
+html[data-resume-layout="technical"] .resume-kicker,
+html[data-resume-layout="technical"] .resume-tagline,
+html[data-resume-layout="technical"] .resume-section-title,
+html[data-resume-layout="technical"] .page-two-heading {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+html[data-resume-layout="technical"] .resume-section-title::before { content: "//"; color: var(--accent); }
+html[data-resume-layout="technical"] .achievement-grid div { background: #fff; border: 1px solid #d5dbe4; border-left: 4px solid var(--accent); }
+html[data-resume-layout="technical"] .skills-grid { padding: 13px; background: #fff; border: 1px solid #d5dbe4; }
+html[data-resume-layout="technical"] .role-heading { padding-bottom: 5px; border-bottom: 1px dashed #c8d0dc; }
+html[data-resume-layout="technical"] .philosophy { border-radius: 0; }
+html[data-resume-layout="technical"] .resume-page footer { left: 54px; right: 54px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+/* Swiss — high contrast, asymmetric typography and heavy rules. */
+html[data-resume-layout="swiss"] .resume-page { padding: 48px 54px 46px; }
+html[data-resume-layout="swiss"] .resume-header { align-items: start; padding-bottom: 25px; border-bottom: 7px solid var(--accent); }
+html[data-resume-layout="swiss"] .resume-header h1 { max-width: 500px; font-size: calc(38px * var(--resume-type-scale)); line-height: .95; text-transform: uppercase; }
+html[data-resume-layout="swiss"] .resume-header h2 { margin-top: 11px; color: #1d2941; }
+html[data-resume-layout="swiss"] .resume-kicker { color: #1d2941; }
+html[data-resume-layout="swiss"] .resume-tagline { color: var(--accent-strong); font-weight: 800; }
+html[data-resume-layout="swiss"] .resume-section-title { color: #111827; font-size: calc(10px * var(--resume-type-scale)); letter-spacing: .08em; }
+html[data-resume-layout="swiss"] .resume-section-title::after { height: 4px; background: #111827; }
+html[data-resume-layout="swiss"] .achievement-grid { gap: 0; }
+html[data-resume-layout="swiss"] .achievement-grid div { background: var(--accent); border: 0; color: #fff; }
+html[data-resume-layout="swiss"] .achievement-grid div:nth-child(even) { background: var(--accent-strong); }
+html[data-resume-layout="swiss"] .achievement-grid strong,
+html[data-resume-layout="swiss"] .achievement-grid span { color: #fff; }
+html[data-resume-layout="swiss"] .role-heading h3 { text-transform: uppercase; }
+html[data-resume-layout="swiss"] .page-two-heading { padding-bottom: 12px; border-bottom: 7px solid var(--accent); }
+html[data-resume-layout="swiss"] .resume-page footer { left: 54px; right: 54px; border-top: 4px solid #111827; }
+
+/* Compact — information-dense, efficient two-page layout. */
+html[data-resume-layout="compact"] .resume-page { padding: 42px 50px 42px; }
+html[data-resume-layout="compact"] .resume-header { padding-bottom: 14px; }
+html[data-resume-layout="compact"] .resume-kicker { margin-bottom: 9px; }
+html[data-resume-layout="compact"] .resume-tagline { margin: 10px 0 15px; }
+html[data-resume-layout="compact"] .resume-page section { margin-top: 14px; }
+html[data-resume-layout="compact"] .resume-section-title { margin-bottom: 7px; }
+html[data-resume-layout="compact"] .summary-copy { line-height: 1.42; }
+html[data-resume-layout="compact"] .achievement-grid div { padding: 8px 9px; }
+html[data-resume-layout="compact"] .skills-grid { grid-template-columns: repeat(3, 1fr); column-gap: 15px; row-gap: 5px; }
+html[data-resume-layout="compact"] .skills-grid div { display: block; }
+html[data-resume-layout="compact"] .skills-grid strong { display: block; margin-bottom: 2px; }
+html[data-resume-layout="compact"] .resume-role { margin-bottom: 11px; }
+html[data-resume-layout="compact"] .role-heading { margin-bottom: 4px; }
+html[data-resume-layout="compact"] .resume-role ul { line-height: 1.4; }
+html[data-resume-layout="compact"] .resume-role li { margin-bottom: 1px; }
+html[data-resume-layout="compact"] .education-section { margin-top: 18px !important; }
+html[data-resume-layout="compact"] .page-two-heading { padding-bottom: 12px; }
+html[data-resume-layout="compact"] .resume-page footer { left: 50px; right: 50px; bottom: 20px; }
+
+/* Bold — immersive color header, oversized metrics and rounded panels. */
+html[data-resume-layout="bold"] .resume-page { padding: 0 58px 46px; }
+html[data-resume-layout="bold"] .resume-header {
+  margin: 0 -58px;
+  padding: 52px 58px 42px;
+  background: var(--accent-strong);
+  border: 0;
+  color: #fff;
+}
+html[data-resume-layout="bold"] .resume-kicker,
+html[data-resume-layout="bold"] .resume-header h2,
+html[data-resume-layout="bold"] .resume-header address,
+html[data-resume-layout="bold"] .resume-header a { color: #fff; }
+html[data-resume-layout="bold"] .resume-header h1 { font-size: calc(38px * var(--resume-type-scale)); }
+html[data-resume-layout="bold"] .resume-tagline {
+  display: inline-block;
+  margin: 18px 0 4px;
+  padding: 7px 12px;
+  background: var(--accent-soft);
+  border-radius: 20px;
+  color: var(--accent-strong);
+}
+html[data-resume-layout="bold"] .resume-section-title { font-size: calc(9.5px * var(--resume-type-scale)); }
+html[data-resume-layout="bold"] .achievement-grid div { padding: 15px 13px; border: 0; border-radius: 8px; }
+html[data-resume-layout="bold"] .achievement-grid strong { font-size: calc(19px * var(--resume-type-scale)); }
+html[data-resume-layout="bold"] .skills-grid { padding: 16px; border-radius: 8px; background: #f6f7f9; }
+html[data-resume-layout="bold"] .resume-role { padding: 13px 15px; border: 1px solid #e0e4ea; border-radius: 8px; }
+html[data-resume-layout="bold"] .page-two-heading {
+  margin: 0 -58px;
+  padding: 28px 58px 20px;
+  background: var(--accent-strong);
+  border: 0;
+  color: #fff;
+}
+html[data-resume-layout="bold"] .philosophy { border-radius: 9px; }
+
+/* Classic — traditional serif résumé with restrained accents. */
+html[data-resume-layout="classic"] .resume-page { padding: 52px 66px 48px; font-family: Georgia, "Times New Roman", serif; color: #262626; }
+html[data-resume-layout="classic"] .resume-header { display: block; text-align: center; padding-bottom: 17px; border-bottom: 2px solid #343434; }
+html[data-resume-layout="classic"] .resume-header h1 { font-family: Georgia, serif; font-weight: 500; letter-spacing: .01em; }
+html[data-resume-layout="classic"] .resume-header h2 { color: var(--accent-strong); font-family: Georgia, serif; font-style: italic; font-weight: 500; }
+html[data-resume-layout="classic"] .resume-header address { min-width: 0; margin-top: 10px; flex-direction: row; justify-content: center; gap: 14px; text-align: center; }
+html[data-resume-layout="classic"] .resume-kicker { font-family: Georgia, serif; }
+html[data-resume-layout="classic"] .resume-tagline { text-align: center; font-family: Georgia, serif; }
+html[data-resume-layout="classic"] .resume-section-title { color: #262626; font-family: Georgia, serif; letter-spacing: .08em; }
+html[data-resume-layout="classic"] .resume-section-title::after { background: #595959; }
+html[data-resume-layout="classic"] .achievement-grid div { padding: 10px; background: transparent; border: 1px solid #b8b8b8; text-align: center; }
+html[data-resume-layout="classic"] .skills-grid div,
+html[data-resume-layout="classic"] .resume-role ul { font-family: Georgia, "Times New Roman", serif; }
+html[data-resume-layout="classic"] .role-heading h3,
+html[data-resume-layout="classic"] .education-row h3 { color: #202020; font-family: Georgia, serif; }
+html[data-resume-layout="classic"] .role-heading p,
+html[data-resume-layout="classic"] .education-row p { font-family: Georgia, serif; font-style: italic; }
+html[data-resume-layout="classic"] .page-two-heading { border-bottom: 2px solid #343434; font-family: Georgia, serif; }
+html[data-resume-layout="classic"] .philosophy { background: transparent; border: 1px solid var(--accent); color: #262626; }
+html[data-resume-layout="classic"] .philosophy span { color: var(--accent-strong); opacity: 1; }
+html[data-resume-layout="classic"] .resume-page footer { left: 66px; right: 66px; font-family: Georgia, serif; }

@@ -3,6 +3,7 @@ import { VersionHistory } from "./version-history.js";
 
 const STORAGE_KEY = "cv-studio-resume-v1";
 const THEME_KEY = "cv-studio-theme";
+const LAYOUT_KEY = "cv-studio-layout";
 const TEXT_SCALE_KEY = "cv-studio-text-scale-v2";
 const TEXT_SCALE_BASE = 1.25;
 const TEXT_SCALE_MIN = 0.875;
@@ -201,6 +202,7 @@ function createVersion(label, force = false) {
   const created = versionHistory.snapshot({
     data,
     theme: document.documentElement.dataset.resumeTheme ?? "blue",
+    layout: document.documentElement.dataset.resumeLayout ?? "modern",
     textScale,
     label,
   }, force);
@@ -212,6 +214,7 @@ function saveResume() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     localStorage.setItem(THEME_KEY, document.documentElement.dataset.resumeTheme ?? "blue");
+    localStorage.setItem(LAYOUT_KEY, document.documentElement.dataset.resumeLayout ?? "modern");
     localStorage.setItem(TEXT_SCALE_KEY, String(textScale));
     const created = createVersion("Saved version");
     isDirty = false;
@@ -329,6 +332,13 @@ function setTheme(theme, record = true) {
   if (record) markDirty("Color change not saved");
 }
 
+function setLayout(layout, record = true) {
+  document.documentElement.dataset.resumeLayout = layout;
+  document.querySelector("#layoutSelect").value = layout;
+  renderPreview();
+  if (record) markDirty("Design change not saved");
+}
+
 function setTextScale(nextScale, record = true) {
   const steppedScale = Math.round(nextScale / TEXT_SCALE_STEP) * TEXT_SCALE_STEP;
   textScale = Math.min(TEXT_SCALE_MAX, Math.max(TEXT_SCALE_MIN, steppedScale));
@@ -349,6 +359,7 @@ document.querySelector("#textSizeUp").addEventListener("click", () => setTextSca
 document.querySelectorAll(".color-swatch").forEach((swatch) => {
   swatch.addEventListener("click", () => setTheme(swatch.dataset.theme));
 });
+document.querySelector("#layoutSelect").addEventListener("change", (event) => setLayout(event.target.value));
 
 const aiDrawer = document.querySelector("#aiDrawer");
 const aiBackdrop = document.querySelector("#aiBackdrop");
@@ -534,6 +545,7 @@ document.querySelector("#historyList").addEventListener("click", (event) => {
 
   data = clone(version.data);
   setTheme(version.theme ?? "blue", false);
+  setLayout(version.layout ?? "modern", false);
   setTextScale(version.textScale ?? TEXT_SCALE_BASE, false);
   fillEditor();
   renderPreview();
@@ -545,6 +557,7 @@ document.querySelector("#historyList").addEventListener("click", (event) => {
 
 fillEditor();
 setTheme(localStorage.getItem(THEME_KEY) ?? "blue", false);
+setLayout(localStorage.getItem(LAYOUT_KEY) ?? "modern", false);
 setTextScale(textScale, false);
 renderPreview();
 updateCompletion();

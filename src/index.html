@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="resume-layouts.css" />
   </head>
   <body>
     <header class="topbar">
@@ -101,6 +102,21 @@
             <p class="preview-note"><span></span> ATS-friendly text</p>
           </div>
           <div class="preview-actions">
+            <label class="layout-picker">
+              <span>Design</span>
+              <select id="layoutSelect" aria-label="Resume design">
+                <option value="modern">Modern</option>
+                <option value="executive">Executive</option>
+                <option value="minimal">Minimal</option>
+                <option value="editorial">Editorial</option>
+                <option value="sidebar">Sidebar</option>
+                <option value="technical">Technical</option>
+                <option value="swiss">Swiss</option>
+                <option value="compact">Compact</option>
+                <option value="bold">Bold</option>
+                <option value="classic">Classic</option>
+              </select>
+            </label>
             <div class="type-size-control" aria-label="Resume text size">
               <span>Text</span>
               <button id="textSizeDown" aria-label="Decrease resume text size">A−</button>

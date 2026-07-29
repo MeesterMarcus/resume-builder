@@ -108,6 +108,9 @@ input:focus, textarea:focus { border-color: #8ca9f7; box-shadow: 0 0 0 3px #2f5f
 .preview-note { margin: 0; font-size: 10px; color: #758095; }
 .preview-note span { display: inline-block; width: 6px; height: 6px; background: #4ba772; border-radius: 50%; margin-right: 5px; }
 .preview-actions { display: flex; align-items: center; gap: 14px; }
+.layout-picker { display: flex; align-items: center; gap: 7px; margin: 0; }
+.layout-picker span { color: #667085; text-transform: uppercase; letter-spacing: .1em; font-size: 8px; font-weight: 800; }
+.layout-picker select { width: 92px; height: 30px; padding: 0 24px 0 9px; border: 1px solid #d3d9e3; border-radius: 8px; outline: none; background: #f5f7fa; color: #536075; font-size: 9px; font-weight: 700; cursor: pointer; }
 .type-size-control { display: flex; align-items: center; overflow: hidden; border: 1px solid #d3d9e3; border-radius: 8px; background: #f5f7fa; }
 .type-size-control > span { padding-left: 10px; color: #667085; text-transform: uppercase; letter-spacing: .1em; font-size: 8px; font-weight: 800; }
 .type-size-control button { width: 31px; height: 29px; padding: 0; border: 0; background: transparent; color: #536075; cursor: pointer; font-size: 9px; font-weight: 800; }
@@ -271,6 +274,7 @@ html[data-resume-theme="plum"] { --accent: #76507c; --accent-strong: #604066; --
   .paper-stack { margin-left: 0; }
   .preview-toolbar { align-items: flex-start; }
   .preview-actions { align-items: flex-end; flex-direction: column-reverse; }
+  .layout-picker span,
   .color-picker > span { display: none; }
   .upload-grid { grid-template-columns: 1fr; }
 }
