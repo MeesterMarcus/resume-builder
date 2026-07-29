@@ -4,12 +4,19 @@
   "description": "HTML/CSS resume builder with PDF export.",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "node src/build.js",
+    "build:pages": "node scripts/build-pages.js",
+    "deploy:pages": "npm run build:pages && wrangler pages deploy",
     "preview": "node src/server.js",
+    "preview:pages": "npm run build:pages && wrangler pages dev",
     "clean": "rm -rf dist"
   },
-  "dependencies": {
-    "puppeteer": "^23.0.0"
+  "devDependencies": {
+    "puppeteer": "^23.0.0",
+    "wrangler": "^4.115.0"
   }
 }

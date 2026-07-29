@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "resume-builder",
+  "compatibility_date": "2026-07-29",
+  "pages_build_output_dir": "./dist/site",
+  "vars": {
+    "AI_ALLOWED_IPS": "136.50.177.197"
+  }
+}
