@@ -8,9 +8,10 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "node src/build.js",
-    "build:pages": "node scripts/build-pages.js",
-    "deploy:pages": "npm run build:pages && wrangler pages deploy",
+    "build": "node scripts/build-pages.js",
+    "build:pages": "npm run build",
+    "build:pdf": "node src/build.js",
+    "deploy:pages": "npm run build && wrangler pages deploy",
     "preview": "node src/server.js",
     "preview:pages": "npm run build:pages && wrangler pages dev",
     "clean": "rm -rf dist"

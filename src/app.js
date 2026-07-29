@@ -75,6 +75,27 @@ const experienceHtml = (roles) =>
     .join("");
 
 function renderPreview() {
+  const hasResumeContent =
+    Object.values(data.basics).some((value) => value.trim()) ||
+    data.summary.trim() ||
+    data.achievements.length ||
+    data.skills.length ||
+    data.experience.length ||
+    Object.values(data.education).some((value) => value.trim());
+
+  if (!hasResumeContent) {
+    preview.innerHTML = `
+      <article class="resume-page resume-empty">
+        <div class="resume-empty-state">
+          <span>01</span>
+          <h2>Your résumé starts here.</h2>
+          <p>Add your details manually, upload an existing résumé, or ask AI to help you build the first draft.</p>
+        </div>
+      </article>`;
+    preview.style.setProperty("--preview-scale", zoom);
+    return;
+  }
+
   const firstRoles = data.experience.slice(0, 3);
   const secondRoles = data.experience.slice(3);
   preview.innerHTML = `
@@ -219,13 +240,13 @@ document.querySelector("#zoomOut").addEventListener("click", () => setZoom(zoom 
 document.querySelector("#zoomIn").addEventListener("click", () => setZoom(zoom + 0.06));
 document.querySelector("#exportButton").addEventListener("click", () => window.print());
 document.querySelector("#resetButton").addEventListener("click", () => {
-  if (!confirm("Reset every field to the original sample resume?")) return;
+  if (!confirm("Clear every field and start with a blank résumé?")) return;
   data = clone(defaultData);
   fillEditor();
   renderPreview();
   updateCompletion();
-  markDirty("Reset not saved");
-  showToast("Sample resume restored");
+  markDirty("Blank résumé not saved");
+  showToast("Résumé cleared");
 });
 document.querySelector("#saveButton").addEventListener("click", saveResume);
 window.addEventListener("beforeunload", (event) => {

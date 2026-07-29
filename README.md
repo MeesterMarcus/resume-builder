@@ -30,7 +30,7 @@ Then open the local server URL shown in the terminal.
 ## Build PDF
 
 ```bash
-npm run build
+npm run build:pdf
 ```
 
 The generated file is saved to `dist/marcus-lorenzana-resume.pdf`. You can also use **Export PDF** in the app and choose “Save as PDF” in the browser print dialog.
@@ -42,13 +42,13 @@ The production build uses static assets plus Pages Functions for the AI routes.
 ```bash
 nvm use
 npm install
-npm run build:pages
+npm run build
 npm run preview:pages
 ```
 
 For Cloudflare Git integration:
 
-- Build command: `npm run build:pages`
+- Build command: `npm run build`
 - Build output directory: `dist/site`
 - Root directory: `/`
 - Node version: `22`
