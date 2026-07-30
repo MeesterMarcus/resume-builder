@@ -6,7 +6,7 @@
   "assets": {
     "binding": "ASSETS",
     "directory": "./dist/site",
-    "run_worker_first": ["/api/*", "/", "/app", "/app/", "/privacy/", "/terms/", "/sitemap.xml"]
+    "run_worker_first": ["/api/*", "/", "/app", "/app/", "/roadmap/", "/privacy/", "/terms/", "/sitemap.xml"]
   },
   "ratelimits": [
     {

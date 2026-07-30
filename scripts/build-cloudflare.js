@@ -16,6 +16,7 @@ const browserAssets = [
   "legal.css",
   "resume-layouts.css",
   "resume-data.js",
+  "roadmap.css",
   "robots.txt",
   "site.webmanifest",
   "sitemap.xml",
@@ -34,7 +35,7 @@ await Promise.all(
 await fs.mkdir(path.join(outputDirectory, "app"), { recursive: true });
 await fs.copyFile(path.join(sourceDirectory, "app", "index.html"), path.join(outputDirectory, "app", "index.html"));
 await Promise.all(
-  ["privacy", "terms"].map(async (route) => {
+  ["privacy", "terms", "roadmap"].map(async (route) => {
     await fs.mkdir(path.join(outputDirectory, route), { recursive: true });
     await fs.copyFile(path.join(sourceDirectory, route, "index.html"), path.join(outputDirectory, route, "index.html"));
     await fs.copyFile(path.join(sourceDirectory, route, "index.html"), path.join(outputDirectory, `${route}.page`));

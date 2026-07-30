@@ -150,6 +150,7 @@ export default {
       const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>${url.origin}/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>${url.origin}/roadmap/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>${url.origin}/privacy/</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
   <url><loc>${url.origin}/terms/</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
 </urlset>`;
@@ -168,17 +169,17 @@ export default {
       return Response.redirect(appUrl, 308);
     }
     let assetRequest = request;
-    if (["/privacy/", "/terms/"].includes(url.pathname)) {
+    if (["/privacy/", "/terms/", "/roadmap/"].includes(url.pathname)) {
       const legalUrl = new URL(request.url);
       legalUrl.pathname = `${url.pathname.slice(0, -1)}.page`;
       assetRequest = new Request(legalUrl, request);
     }
     const assetResponse = await env.ASSETS.fetch(assetRequest);
     const headers = withSecurityHeaders(assetResponse);
-    if (["/privacy/", "/terms/"].includes(url.pathname) && assetResponse.ok) {
+    if (["/privacy/", "/terms/", "/roadmap/"].includes(url.pathname) && assetResponse.ok) {
       headers.set("Content-Type", "text/html; charset=utf-8");
     }
-    if (["/", "/privacy/", "/terms/"].includes(url.pathname) && assetResponse.ok) {
+    if (["/", "/privacy/", "/terms/", "/roadmap/"].includes(url.pathname) && assetResponse.ok) {
       const html = (await assetResponse.text()).replaceAll("__SITE_ORIGIN__", url.origin);
       headers.set("Content-Type", "text/html; charset=utf-8");
       return new Response(html, { status: assetResponse.status, headers });
