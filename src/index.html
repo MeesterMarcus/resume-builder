@@ -155,6 +155,30 @@
       </header>
 
       <div class="ai-content">
+        <section class="ai-access-card" id="aiAccessCard">
+          <div class="ai-access-summary">
+            <span class="access-indicator"></span>
+            <span><strong id="aiAccessTitle">Checking AI access…</strong><small id="aiAccessDescription">Confirming which connection this browser can use.</small></span>
+          </div>
+          <details id="byokSettings">
+            <summary>Use your own OpenAI API key</summary>
+            <div class="byok-fields">
+              <label for="byokApiKey">OpenAI API key</label>
+              <div class="secret-input">
+                <input id="byokApiKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…" />
+                <button id="toggleByokVisibility" type="button" aria-label="Show API key">Show</button>
+              </div>
+              <label class="byok-remember"><input id="rememberByokKey" type="checkbox" /> Remember on this browser</label>
+              <p class="byok-device-warning">Avoid this option on shared or public devices. Browser extensions and anyone with access to this browser profile may be able to read stored keys.</p>
+              <div class="byok-actions">
+                <button id="saveByokKey" type="button">Use this key</button>
+                <button id="clearByokKey" type="button">Clear</button>
+              </div>
+              <p>Use a dedicated, restricted OpenAI project key with a small spending limit. The key passes through this site’s Worker only for your OpenAI request; it is never added to your résumé or saved on the server.</p>
+            </div>
+          </details>
+        </section>
+
         <button class="optimize-card" id="optimizeButton">
           <span class="optimize-icon">↗</span>
           <span><strong>Optimize my résumé</strong><small>Improve impact, clarity, keywords, and concision in one pass.</small></span>

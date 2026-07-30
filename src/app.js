@@ -11,6 +11,8 @@ const TEXT_SCALE_MIN = 0.875;
 const TEXT_SCALE_MAX = 1.5;
 const TEXT_SCALE_STEP = 0.0625;
 const HISTORY_KEY = "cv-studio-history-v1";
+const BYOK_STORAGE_KEY = "cv-studio-openai-key";
+const BYOK_REMEMBER_PREFERENCE_KEY = "cv-studio-remember-openai-key";
 const RESUME_LAYOUTS = [
   { id: "modern", name: "Modern", description: "Balanced and versatile" },
   { id: "executive", name: "Executive", description: "Formal and composed" },
@@ -103,6 +105,8 @@ let zoom = 0.82;
 let textScale = Number.parseFloat(localStorage.getItem(TEXT_SCALE_KEY) ?? String(TEXT_SCALE_BASE));
 let previousAiVersion = null;
 let isDirty = false;
+let aiHostedAccess = null;
+let byokApiKey = sessionStorage.getItem(BYOK_STORAGE_KEY) ?? localStorage.getItem(BYOK_STORAGE_KEY) ?? "";
 const aiDocuments = { resume: null, job: null };
 const versionHistory = new VersionHistory(HISTORY_KEY, 10);
 
@@ -451,21 +455,21 @@ function galleryPreviewDocument(layout, theme) {
           <section class="experience-section">${sectionTitle("Professional experience")}${experienceHtml(sample.experience)}</section>
           <footer><span>${sample.basics.name}</span><span>01 / 02</span></footer>
         </article>
-        <script>
-          function fitSamplePage() {
-            const section = document.querySelector(".experience-section");
-            const footer = document.querySelector("footer");
-            let role = section.querySelector(".resume-role:last-child");
-            while (role && role.getBoundingClientRect().bottom > footer.getBoundingClientRect().top - 12) {
-              role.remove();
-              role = section.querySelector(".resume-role:last-child");
-            }
-          }
-          fitSamplePage();
-          document.fonts?.ready.then(fitSamplePage);
-        </script>
       </body>
     </html>`;
+}
+
+function fitGallerySample(frame) {
+  const document = frame.contentDocument;
+  const section = document?.querySelector(".experience-section");
+  const footer = document?.querySelector("footer");
+  if (!section || !footer) return;
+
+  let role = section.querySelector(".resume-role:last-child");
+  while (role && role.getBoundingClientRect().bottom > footer.getBoundingClientRect().top - 12) {
+    role.remove();
+    role = section.querySelector(".resume-role:last-child");
+  }
 }
 
 function renderDesignGallery() {
@@ -479,6 +483,10 @@ function renderDesignGallery() {
       </button>`,
   ).join("");
   document.querySelectorAll(".design-live-frame").forEach((frame) => {
+    frame.addEventListener("load", () => {
+      fitGallerySample(frame);
+      frame.contentDocument.fonts?.ready.then(() => fitGallerySample(frame));
+    });
     frame.srcdoc = galleryPreviewDocument(frame.dataset.previewLayout, theme);
   });
 }
@@ -547,12 +555,59 @@ const aiDrawer = document.querySelector("#aiDrawer");
 const aiBackdrop = document.querySelector("#aiBackdrop");
 const aiStatus = document.querySelector("#aiStatus");
 const aiPrompt = document.querySelector("#aiPrompt");
+const aiAccessCard = document.querySelector("#aiAccessCard");
+const byokSettings = document.querySelector("#byokSettings");
+const byokInput = document.querySelector("#byokApiKey");
+
+function updateAiAccessDisplay() {
+  const hasByok = Boolean(byokApiKey);
+  aiAccessCard.classList.toggle("hosted", aiHostedAccess === true);
+  aiAccessCard.classList.toggle("byok", aiHostedAccess !== true && hasByok);
+
+  if (aiHostedAccess === true) {
+    document.querySelector("#aiAccessTitle").textContent = "Hosted AI access available";
+    document.querySelector("#aiAccessDescription").textContent = "This connection can use the site’s configured AI service.";
+  } else if (hasByok) {
+    document.querySelector("#aiAccessTitle").textContent = "Using your OpenAI API key";
+    document.querySelector("#aiAccessDescription").textContent = "Requests are billed directly to your OpenAI account.";
+  } else if (aiHostedAccess === false) {
+    document.querySelector("#aiAccessTitle").textContent = "Bring your own OpenAI key";
+    document.querySelector("#aiAccessDescription").textContent = "Hosted AI is limited, but you can connect your own account.";
+  } else {
+    document.querySelector("#aiAccessTitle").textContent = "Checking AI access…";
+    document.querySelector("#aiAccessDescription").textContent = "Confirming which connection this browser can use.";
+  }
+}
+
+async function readApiResponse(response) {
+  const responseText = await response.text();
+  try {
+    return responseText ? JSON.parse(responseText) : {};
+  } catch {
+    throw new Error(response.ok ? "The server returned an invalid response." : `AI endpoint unavailable (${response.status}). Start the app with npm run preview.`);
+  }
+}
+
+async function refreshAiAccessStatus() {
+  try {
+    const response = await fetch("/api/ai/status", { headers: { Accept: "application/json" } });
+    const result = await readApiResponse(response);
+    aiHostedAccess = response.ok && result.hostedAccess === true;
+  } catch {
+    aiHostedAccess = false;
+  }
+  updateAiAccessDisplay();
+  return aiHostedAccess;
+}
 
 function toggleAiDrawer(open) {
   aiDrawer.classList.toggle("open", open);
   aiBackdrop.classList.toggle("open", open);
   aiDrawer.setAttribute("aria-hidden", String(!open));
-  if (open) setTimeout(() => aiPrompt.focus(), 280);
+  if (open) {
+    refreshAiAccessStatus();
+    setTimeout(() => aiPrompt.focus(), 280);
+  }
 }
 
 document.querySelector("#openAiButton").addEventListener("click", () => toggleAiDrawer(true));
@@ -561,6 +616,42 @@ aiBackdrop.addEventListener("click", () => toggleAiDrawer(false));
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && aiDrawer.classList.contains("open")) toggleAiDrawer(false);
 });
+
+byokInput.value = byokApiKey;
+document.querySelector("#rememberByokKey").checked = localStorage.getItem(BYOK_REMEMBER_PREFERENCE_KEY) !== "false";
+document.querySelector("#saveByokKey").addEventListener("click", () => {
+  const key = byokInput.value.trim();
+  if (key.length < 20) {
+    setAiStatus("error", "Enter a valid OpenAI API key.");
+    return;
+  }
+  byokApiKey = key;
+  sessionStorage.setItem(BYOK_STORAGE_KEY, key);
+  const rememberKey = document.querySelector("#rememberByokKey").checked;
+  localStorage.setItem(BYOK_REMEMBER_PREFERENCE_KEY, String(rememberKey));
+  if (rememberKey) localStorage.setItem(BYOK_STORAGE_KEY, key);
+  else localStorage.removeItem(BYOK_STORAGE_KEY);
+  byokSettings.open = false;
+  updateAiAccessDisplay();
+  setAiStatus("idle");
+  showToast("OpenAI key ready for this browser");
+});
+document.querySelector("#clearByokKey").addEventListener("click", () => {
+  byokApiKey = "";
+  byokInput.value = "";
+  sessionStorage.removeItem(BYOK_STORAGE_KEY);
+  localStorage.removeItem(BYOK_STORAGE_KEY);
+  document.querySelector("#rememberByokKey").checked = false;
+  updateAiAccessDisplay();
+  showToast("OpenAI key cleared");
+});
+document.querySelector("#toggleByokVisibility").addEventListener("click", (event) => {
+  const reveal = byokInput.type === "password";
+  byokInput.type = reveal ? "text" : "password";
+  event.currentTarget.textContent = reveal ? "Hide" : "Show";
+  event.currentTarget.setAttribute("aria-label", `${reveal ? "Hide" : "Show"} API key`);
+});
+updateAiAccessDisplay();
 
 function readFile(file) {
   return new Promise((resolve, reject) => {
@@ -640,13 +731,24 @@ async function runAi(action) {
     return;
   }
 
+  if (aiHostedAccess === null) await refreshAiAccessStatus();
+  if (!aiHostedAccess && !byokApiKey) {
+    byokSettings.open = true;
+    byokInput.focus();
+    setAiStatus("error", "Add your OpenAI API key to use AI from this connection.");
+    return;
+  }
+
   setAiStatus("loading", action === "optimize" ? "Checking impact, clarity, keywords, and concision." : "Applying your request without inventing details.");
   document.querySelectorAll("#optimizeButton, #sendAiButton").forEach((button) => (button.disabled = true));
 
   try {
     const response = await fetch("/api/ai/revise", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(!aiHostedAccess && byokApiKey ? { "X-OpenAI-API-Key": byokApiKey } : {}),
+      },
       body: JSON.stringify({
         action,
         prompt,
@@ -654,7 +756,7 @@ async function runAi(action) {
         documents: Object.values(aiDocuments).filter(Boolean),
       }),
     });
-    const result = await response.json();
+    const result = await readApiResponse(response);
     if (!response.ok) throw new Error(result.error ?? "The request failed.");
     applyAiResume(result.resume);
     setAiStatus("idle");

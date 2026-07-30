@@ -126,6 +126,7 @@ export function getOutputText(apiResponse) {
 export function createOpenAiRequest(payload, model) {
   return {
     model,
+    max_output_tokens: 10_000,
     instructions: systemPrompt,
     input: [{ role: "user", content: buildUserContent(payload) }],
     text: {

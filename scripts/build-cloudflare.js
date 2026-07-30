@@ -8,6 +8,7 @@ const outputDirectory = path.join(projectDirectory, "dist", "site");
 const browserAssets = [
   "app.js",
   "index.html",
+  "resume-layouts.css",
   "resume-data.js",
   "styles.css",
   "version-history.js",

@@ -16,6 +16,13 @@ const contentTypes = {
   ".png": "image/png",
   ".svg": "image/svg+xml",
 };
+const securityHeaders = {
+  "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
+  "Referrer-Policy": "no-referrer",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+};
 
 function resolveRequestPath(url = "/") {
   const pathname = decodeURIComponent(new URL(url, "http://localhost").pathname);
@@ -30,7 +37,7 @@ function resolveRequestPath(url = "/") {
 }
 
 function sendJson(response, status, body) {
-  response.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
+  response.writeHead(status, { ...securityHeaders, "Content-Type": "application/json; charset=utf-8" });
   response.end(JSON.stringify(body));
 }
 
@@ -50,15 +57,17 @@ async function readJson(request) {
 const server = http.createServer(async (request, response) => {
   if (request.method === "GET" && request.url === "/api/ai/status") {
     sendJson(response, 200, {
-      configured: Boolean(config.openAiApiKey && config.openAiModel),
-      model: config.openAiModel ?? null,
+      configured: Boolean(config.openAiApiKey),
+      hostedAccess: Boolean(config.openAiApiKey),
+      byokSupported: true,
+      model: config.openAiModel ?? "gpt-5.6-luna",
     });
     return;
   }
 
   if (request.method === "POST" && request.url === "/api/ai/revise") {
     try {
-      const result = await reviseResume(await readJson(request));
+      const result = await reviseResume(await readJson(request), request.headers["x-openai-api-key"]?.trim());
       sendJson(response, 200, { resume: result });
     } catch (error) {
       sendJson(response, 400, { error: error.message });
@@ -69,7 +78,7 @@ const server = http.createServer(async (request, response) => {
   const filePath = resolveRequestPath(request.url);
 
   if (!filePath) {
-    response.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
+    response.writeHead(403, { ...securityHeaders, "Content-Type": "text/plain; charset=utf-8" });
     response.end("Forbidden");
     return;
   }
@@ -79,12 +88,13 @@ const server = http.createServer(async (request, response) => {
     if (!fileStats.isFile()) throw new Error("Not a file");
 
     response.writeHead(200, {
+      ...securityHeaders,
       "Cache-Control": "no-store",
       "Content-Type": contentTypes[path.extname(filePath)] ?? "application/octet-stream",
     });
     createReadStream(filePath).pipe(response);
   } catch {
-    response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+    response.writeHead(404, { ...securityHeaders, "Content-Type": "text/plain; charset=utf-8" });
     response.end("Not found");
   }
 });

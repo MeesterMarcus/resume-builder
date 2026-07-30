@@ -8,6 +8,46 @@
     "directory": "./dist/site",
     "run_worker_first": ["/api/*"]
   },
+  "ratelimits": [
+    {
+      "name": "HOSTED_AI_RATE_LIMITER",
+      "namespace_id": "72642001",
+      "simple": {
+        "limit": 6,
+        "period": 60
+      }
+    },
+    {
+      "name": "HOSTED_AI_GLOBAL_RATE_LIMITER",
+      "namespace_id": "72642002",
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
+    },
+    {
+      "name": "BYOK_AI_RATE_LIMITER",
+      "namespace_id": "72642003",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "HOSTED_AI_DAILY_LIMIT",
+        "class_name": "HostedAiDailyLimit"
+      }
+    ]
+  },
+  "exports": {
+    "HostedAiDailyLimit": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  },
   "vars": {
     "AI_ALLOWED_IPS": "136.50.177.197",
     "OPENAI_MODEL": "gpt-5.6-luna"
