@@ -17,7 +17,7 @@ const contentTypes = {
   ".svg": "image/svg+xml",
 };
 const securityHeaders = {
-  "Content-Security-Policy": "default-src 'self'; script-src 'self' 'sha256-VMefWjQ7SbGXsfKMa6Equmdz+kEDbDB0qvfYe+Th8hU='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+  "Content-Security-Policy": "default-src 'self'; script-src 'self' 'sha256-VMefWjQ7SbGXsfKMa6Equmdz+kEDbDB0qvfYe+Th8hU=' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
   "Referrer-Policy": "no-referrer",
   "X-Content-Type-Options": "nosniff",
