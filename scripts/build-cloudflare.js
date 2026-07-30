@@ -22,5 +22,6 @@ await Promise.all(
     fs.copyFile(path.join(sourceDirectory, fileName), path.join(outputDirectory, fileName)),
   ),
 );
+await fs.cp(path.join(sourceDirectory, "assets"), path.join(outputDirectory, "assets"), { recursive: true });
 
 console.log(`Built Cloudflare assets in ${path.relative(projectDirectory, outputDirectory)}`);

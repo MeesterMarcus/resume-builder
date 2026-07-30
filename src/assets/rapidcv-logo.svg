@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="title">
+  <title id="title">RapidCV</title>
+  <rect width="48" height="48" rx="14" fill="#17233D"/>
+  <path fill="#FFFFFF" d="M13 10h13.1c7.1 0 11.4 3.6 11.4 9.5 0 4.1-2.2 7.1-5.8 8.6L38 38h-8.1l-5.2-8.5h-4V38H13V10Zm7.7 6.5v6.8h4.8c2.7 0 4.3-1.2 4.3-3.5 0-2.2-1.6-3.3-4.3-3.3h-4.8Z"/>
+  <path fill="#5B86F7" d="M32.2 10H40l-4.7 6.2h-7.8l4.7-6.2Z"/>
+</svg>

@@ -100,5 +100,5 @@ const server = http.createServer(async (request, response) => {
 });
 
 server.listen(config.port, config.host, () => {
-  console.log(`CV Studio is running at http://${config.host}:${config.port}`);
+  console.log(`RapidCV is running at http://${config.host}:${config.port}`);
 });

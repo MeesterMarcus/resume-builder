@@ -28,8 +28,9 @@ button { color: inherit; }
   height: 68px; display: grid; grid-template-columns: 310px 1fr 510px; align-items: center;
   padding: 0 24px; background: #fff; border-bottom: 1px solid var(--line); position: relative; z-index: 10;
 }
-.brand { display: flex; gap: 10px; align-items: center; color: var(--ink); text-decoration: none; font: 700 17px Manrope; letter-spacing: -.02em; }
-.brand-mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: var(--ink); color: #fff; font-size: 14px; }
+.brand { display: flex; gap: 10px; align-items: center; color: var(--ink); text-decoration: none; font: 800 18px Manrope; letter-spacing: -.045em; }
+.brand img { width: 32px; height: 32px; display: block; }
+.brand > span > span { color: var(--blue); }
 .document-state { justify-self: center; text-align: center; }
 .document-name { background: none; border: 0; padding: 2px 8px; font-weight: 600; cursor: pointer; }
 .document-name span { opacity: 0; color: var(--muted); transition: opacity .2s; }
