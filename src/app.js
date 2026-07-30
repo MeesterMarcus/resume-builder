@@ -113,9 +113,14 @@ let textScale = Number.parseFloat(localStorage.getItem(TEXT_SCALE_KEY) ?? String
 let previousAiVersion = null;
 let isDirty = false;
 let aiHostedAccess = null;
-let byokApiKey = sessionStorage.getItem(BYOK_STORAGE_KEY) ?? localStorage.getItem(BYOK_STORAGE_KEY) ?? "";
+let byokApiKey = sessionStorage.getItem(BYOK_STORAGE_KEY) ?? "";
 const aiDocuments = { resume: null, job: null };
 const versionHistory = new VersionHistory(HISTORY_KEY, 10);
+
+// Older releases offered persistent API-key storage. Remove those values during
+// migration so credentials cannot remain in localStorage after this update.
+localStorage.removeItem(BYOK_STORAGE_KEY);
+localStorage.removeItem(BYOK_REMEMBER_PREFERENCE_KEY);
 
 try {
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -744,7 +749,6 @@ document.addEventListener("keydown", (event) => {
 });
 
 byokInput.value = byokApiKey;
-document.querySelector("#rememberByokKey").checked = localStorage.getItem(BYOK_REMEMBER_PREFERENCE_KEY) !== "false";
 document.querySelector("#saveByokKey").addEventListener("click", () => {
   const key = byokInput.value.trim();
   if (key.length < 20) {
@@ -753,21 +757,16 @@ document.querySelector("#saveByokKey").addEventListener("click", () => {
   }
   byokApiKey = key;
   sessionStorage.setItem(BYOK_STORAGE_KEY, key);
-  const rememberKey = document.querySelector("#rememberByokKey").checked;
-  localStorage.setItem(BYOK_REMEMBER_PREFERENCE_KEY, String(rememberKey));
-  if (rememberKey) localStorage.setItem(BYOK_STORAGE_KEY, key);
-  else localStorage.removeItem(BYOK_STORAGE_KEY);
   byokSettings.open = false;
   updateAiAccessDisplay();
   setAiStatus("idle");
-  showToast("OpenAI key ready for this browser");
+  showToast("OpenAI key ready for this tab");
 });
 document.querySelector("#clearByokKey").addEventListener("click", () => {
   byokApiKey = "";
   byokInput.value = "";
   sessionStorage.removeItem(BYOK_STORAGE_KEY);
   localStorage.removeItem(BYOK_STORAGE_KEY);
-  document.querySelector("#rememberByokKey").checked = false;
   updateAiAccessDisplay();
   showToast("OpenAI key cleared");
 });

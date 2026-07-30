@@ -14,8 +14,6 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/resume-layouts.css" />
-    <script src="/analytics.js"></script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9N672Q6QV0"></script>
   </head>
   <body>
     <header class="topbar">
@@ -187,13 +185,13 @@
                 <input id="byokApiKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…" />
                 <button id="toggleByokVisibility" type="button" aria-label="Show API key">Show</button>
               </div>
-              <label class="byok-remember"><input id="rememberByokKey" type="checkbox" /> Remember on this browser</label>
-              <p class="byok-device-warning">Avoid this option on shared or public devices. Browser extensions and anyone with access to this browser profile may be able to read stored keys.</p>
+              <p class="byok-session-note"><strong>Session only.</strong> Your key stays in this browser tab and is cleared when the tab closes. For added safety, RapidCV does not store API keys in persistent browser storage.</p>
               <div class="byok-actions">
                 <button id="saveByokKey" type="button">Use this key</button>
                 <button id="clearByokKey" type="button">Clear</button>
               </div>
               <p>Use a dedicated, restricted OpenAI project key with a small spending limit. The key passes through this site’s Worker only for your OpenAI request; it is never added to your résumé or saved on the server.</p>
+              <p class="byok-future-note"><strong>Where this is headed:</strong> managed AI access is on the roadmap so most users will not need to provide a personal API key.</p>
             </div>
           </details>
         </section>

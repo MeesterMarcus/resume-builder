@@ -249,9 +249,10 @@ input:focus, textarea:focus { border-color: #8ca9f7; box-shadow: 0 0 0 3px #2f5f
 .secret-input { display: flex; overflow: hidden; border: 1px solid #d4dce8; border-radius: 8px; background: #fff; }
 .secret-input input { flex: 1; min-width: 0; margin: 0; padding: 9px 10px; border: 0; border-radius: 0; box-shadow: none; font: 500 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
 .secret-input button { width: 46px; border: 0; border-left: 1px solid #e1e6ed; background: #f7f8fa; color: #667085; font-size: 8px; font-weight: 800; cursor: pointer; }
-.byok-remember { display: flex; align-items: center; gap: 7px; margin: 9px 0 0; color: #667085; font-size: 8.5px; font-weight: 600; }
-.byok-remember input { width: 13px; height: 13px; margin: 0; }
-.byok-fields .byok-device-warning { margin-top: 5px; color: #9a6b28; }
+.byok-fields .byok-session-note { margin-top: 9px; padding: 9px 10px; border: 1px solid #d9e2f7; border-radius: 8px; background: #f5f7fd; color: #53627d; }
+.byok-fields .byok-session-note strong { color: #315bc0; }
+.byok-fields .byok-future-note { padding-top: 9px; border-top: 1px solid #e6eaf2; }
+.byok-fields .byok-future-note strong { color: #53627d; }
 .byok-actions { display: flex; gap: 7px; margin-top: 10px; }
 .byok-actions button { padding: 7px 9px; border: 1px solid #ccd6e5; border-radius: 7px; background: #fff; color: #526079; font-size: 8.5px; font-weight: 800; cursor: pointer; }
 .byok-actions button:first-child { border-color: var(--blue); background: var(--blue); color: #fff; }
