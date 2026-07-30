@@ -1,0 +1,17 @@
+{
+  "name": "RapidCV — AI Résumé Builder",
+  "short_name": "RapidCV",
+  "description": "Build a polished, ATS-friendly résumé with AI guidance.",
+  "start_url": "/app/",
+  "display": "standalone",
+  "background_color": "#f8f9fc",
+  "theme_color": "#17233d",
+  "icons": [
+    {
+      "src": "/assets/rapidcv-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

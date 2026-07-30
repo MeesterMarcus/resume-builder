@@ -8,8 +8,13 @@ const outputDirectory = path.join(projectDirectory, "dist", "site");
 const browserAssets = [
   "app.js",
   "index.html",
+  "landing.css",
+  "legal.css",
   "resume-layouts.css",
   "resume-data.js",
+  "robots.txt",
+  "site.webmanifest",
+  "sitemap.xml",
   "styles.css",
   "version-history.js",
 ];
@@ -21,6 +26,15 @@ await Promise.all(
   browserAssets.map((fileName) =>
     fs.copyFile(path.join(sourceDirectory, fileName), path.join(outputDirectory, fileName)),
   ),
+);
+await fs.mkdir(path.join(outputDirectory, "app"), { recursive: true });
+await fs.copyFile(path.join(sourceDirectory, "app", "index.html"), path.join(outputDirectory, "app", "index.html"));
+await Promise.all(
+  ["privacy", "terms"].map(async (route) => {
+    await fs.mkdir(path.join(outputDirectory, route), { recursive: true });
+    await fs.copyFile(path.join(sourceDirectory, route, "index.html"), path.join(outputDirectory, route, "index.html"));
+    await fs.copyFile(path.join(sourceDirectory, route, "index.html"), path.join(outputDirectory, `${route}.page`));
+  }),
 );
 await fs.cp(path.join(sourceDirectory, "assets"), path.join(outputDirectory, "assets"), { recursive: true });
 

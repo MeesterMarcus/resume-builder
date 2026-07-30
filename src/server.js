@@ -1,5 +1,5 @@
 import { createReadStream } from "node:fs";
-import { stat } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,7 +17,7 @@ const contentTypes = {
   ".svg": "image/svg+xml",
 };
 const securityHeaders = {
-  "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+  "Content-Security-Policy": "default-src 'self'; script-src 'self' 'sha256-VMefWjQ7SbGXsfKMa6Equmdz+kEDbDB0qvfYe+Th8hU='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
   "Referrer-Policy": "no-referrer",
   "X-Content-Type-Options": "nosniff",
@@ -26,7 +26,8 @@ const securityHeaders = {
 
 function resolveRequestPath(url = "/") {
   const pathname = decodeURIComponent(new URL(url, "http://localhost").pathname);
-  const relativePath = pathname === "/" ? "index.html" : pathname.slice(1);
+  const routePath = pathname === "/app" ? "/app/" : pathname;
+  const relativePath = routePath === "/" ? "index.html" : routePath.endsWith("/") ? `${routePath.slice(1)}index.html` : routePath.slice(1);
   const resolvedPath = path.resolve(sourceDirectory, relativePath);
 
   if (!resolvedPath.startsWith(`${sourceDirectory}${path.sep}`)) {
@@ -87,12 +88,18 @@ const server = http.createServer(async (request, response) => {
     const fileStats = await stat(filePath);
     if (!fileStats.isFile()) throw new Error("Not a file");
 
+    let content = null;
+    if (path.basename(filePath) === "index.html") {
+      content = await readFile(filePath, "utf8");
+      content = content.replaceAll("__SITE_ORIGIN__", `http://${request.headers.host}`);
+    }
     response.writeHead(200, {
       ...securityHeaders,
       "Cache-Control": "no-store",
       "Content-Type": contentTypes[path.extname(filePath)] ?? "application/octet-stream",
     });
-    createReadStream(filePath).pipe(response);
+    if (content !== null) response.end(content);
+    else createReadStream(filePath).pipe(response);
   } catch {
     response.writeHead(404, { ...securityHeaders, "Content-Type": "text/plain; charset=utf-8" });
     response.end("Not found");

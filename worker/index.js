@@ -12,7 +12,7 @@ const jsonHeaders = {
   "X-Content-Type-Options": "nosniff",
 };
 const securityHeaders = {
-  "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+  "Content-Security-Policy": "default-src 'self'; script-src 'self' 'sha256-VMefWjQ7SbGXsfKMa6Equmdz+kEDbDB0qvfYe+Th8hU='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
   "Referrer-Policy": "no-referrer",
   "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
@@ -25,6 +25,12 @@ function jsonResponse(body, status = 200, additionalHeaders = {}) {
     status,
     headers: { ...jsonHeaders, ...additionalHeaders },
   });
+}
+
+function withSecurityHeaders(response) {
+  const headers = new Headers(response.headers);
+  Object.entries(securityHeaders).forEach(([name, value]) => headers.set(name, value));
+  return headers;
 }
 
 function isAllowedRequest(request, allowedIpsValue) {
@@ -140,9 +146,43 @@ export default {
       return jsonResponse({ error: "Not found." }, 404);
     }
 
-    const assetResponse = await env.ASSETS.fetch(request);
-    const headers = new Headers(assetResponse.headers);
-    Object.entries(securityHeaders).forEach(([name, value]) => headers.set(name, value));
+    if (url.pathname === "/sitemap.xml") {
+      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${url.origin}/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>${url.origin}/privacy/</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>${url.origin}/terms/</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+</urlset>`;
+      return new Response(sitemap, {
+        headers: {
+          ...securityHeaders,
+          "Cache-Control": "public, max-age=3600",
+          "Content-Type": "application/xml; charset=utf-8",
+        },
+      });
+    }
+
+    if (url.pathname === "/app") {
+      const appUrl = new URL(request.url);
+      appUrl.pathname = "/app/";
+      return Response.redirect(appUrl, 308);
+    }
+    let assetRequest = request;
+    if (["/privacy/", "/terms/"].includes(url.pathname)) {
+      const legalUrl = new URL(request.url);
+      legalUrl.pathname = `${url.pathname.slice(0, -1)}.page`;
+      assetRequest = new Request(legalUrl, request);
+    }
+    const assetResponse = await env.ASSETS.fetch(assetRequest);
+    const headers = withSecurityHeaders(assetResponse);
+    if (["/privacy/", "/terms/"].includes(url.pathname) && assetResponse.ok) {
+      headers.set("Content-Type", "text/html; charset=utf-8");
+    }
+    if (["/", "/privacy/", "/terms/"].includes(url.pathname) && assetResponse.ok) {
+      const html = (await assetResponse.text()).replaceAll("__SITE_ORIGIN__", url.origin);
+      headers.set("Content-Type", "text/html; charset=utf-8");
+      return new Response(html, { status: assetResponse.status, headers });
+    }
     return new Response(assetResponse.body, {
       status: assetResponse.status,
       statusText: assetResponse.statusText,

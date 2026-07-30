@@ -3,251 +3,175 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Build, tailor, and export a polished ATS-friendly résumé with RapidCV." />
-    <meta name="theme-color" content="#17233d" />
-    <title>RapidCV — AI Résumé Builder</title>
-    <link rel="icon" href="assets/rapidcv-logo.svg" type="image/svg+xml" />
+    <title>RapidCV — AI Résumé Builder for ATS-Friendly Resumes</title>
+    <meta name="description" content="Build a polished, ATS-friendly résumé with AI guidance, flexible designs, live editing, and one-click PDF export. Start free with RapidCV." />
+    <meta name="keywords" content="AI resume builder, ATS resume builder, resume maker, CV builder, resume PDF, job application" />
+    <meta name="author" content="RapidCV" />
+    <meta name="application-name" content="RapidCV" />
+    <meta name="theme-color" content="#0b1020" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="__SITE_ORIGIN__/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="RapidCV" />
+    <meta property="og:title" content="RapidCV — A sharper résumé. A faster next step." />
+    <meta property="og:description" content="Create an ATS-friendly résumé with AI guidance, flexible designs, and one-click PDF export." />
+    <meta property="og:url" content="__SITE_ORIGIN__/" />
+    <meta property="og:image" content="__SITE_ORIGIN__/assets/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="RapidCV AI résumé builder with a polished résumé preview" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="RapidCV — A sharper résumé. A faster next step." />
+    <meta name="twitter:description" content="Build an ATS-friendly résumé with AI guidance and export it as a polished PDF." />
+    <meta name="twitter:image" content="__SITE_ORIGIN__/assets/og.png" />
+    <link rel="icon" href="/assets/rapidcv-logo.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="resume-layouts.css" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/landing.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "RapidCV",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "An AI-powered résumé builder for creating polished, ATS-friendly resumes and exporting them as PDFs.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": ["AI résumé guidance", "ATS-friendly layouts", "Live résumé preview", "PDF export", "Local version history"]
+      }
+    </script>
   </head>
   <body>
-    <header class="topbar">
-      <a class="brand" href="#" aria-label="RapidCV home"><img src="assets/rapidcv-logo.svg" alt="" /><span>Rapid<span>CV</span></span></a>
-      <div class="document-state">
-        <button class="document-name" id="documentName" aria-label="Rename document">Untitled résumé <span>✎</span></button>
-        <span class="save-state"><i></i><span id="saveStatus">Saved locally</span></span>
-      </div>
-      <div class="top-actions">
-        <button class="button button-ghost" id="openHistoryButton"><span>↶</span> History</button>
-        <button class="button button-ghost" id="resetButton">Reset</button>
-        <button class="button button-save" id="saveButton"><span>✓</span> Save</button>
-        <button class="button button-ai" id="openAiButton"><span>✦</span> Ask AI</button>
-        <button class="button button-primary" id="exportButton"><span>↓</span> Export PDF</button>
-      </div>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="RapidCV home">
+        <img src="/assets/rapidcv-logo.svg" alt="" width="38" height="38" />
+        <span>Rapid<span>CV</span></span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a class="nav-cta" href="/app/">Build my résumé <span aria-hidden="true">↗</span></a>
+      </nav>
     </header>
 
-    <main class="workspace">
-      <aside class="editor-panel" aria-label="Resume editor">
-        <div class="editor-intro">
-          <div><p class="eyebrow">Resume editor</p><h1>Shape your story.</h1></div>
-          <span class="completion" id="completion">100%</span>
+    <main>
+      <section class="hero">
+        <div class="hero-glow" aria-hidden="true"></div>
+        <div class="hero-copy">
+          <p class="eyebrow"><span></span> AI résumé builder</p>
+          <h1>A sharper résumé.<br /><em>A faster next step.</em></h1>
+          <p class="hero-lede">Turn your experience into a clear, credible résumé—without wrestling with formatting or staring at a blank page.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="/app/">Build my résumé <span aria-hidden="true">→</span></a>
+            <a class="text-link" href="#how-it-works">See how it works <span aria-hidden="true">↓</span></a>
+          </div>
+          <ul class="trust-list" aria-label="Product benefits">
+            <li><span>✓</span> Free to use for now</li>
+            <li><span>✓</span> No sign-up required</li>
+            <li><span>✓</span> Your draft stays on your device</li>
+          </ul>
         </div>
-        <div class="progress-track"><span id="progressBar"></span></div>
 
-        <nav class="section-tabs" aria-label="Editor sections">
-          <button class="tab active" data-target="basics"><span>01</span> Basics</button>
-          <button class="tab" data-target="summary"><span>02</span> Summary</button>
-          <button class="tab" data-target="experience"><span>03</span> Experience</button>
-          <button class="tab" data-target="skills"><span>04</span> Skills</button>
-        </nav>
-
-        <form id="resumeForm">
-          <section class="form-section active" data-section="basics">
-            <div class="section-heading"><h2>Personal details</h2><p>The essentials hiring teams need.</p></div>
-            <label>Full name<input name="basics.name" autocomplete="name" /></label>
-            <label>Professional title<input name="basics.title" /></label>
-            <label>Header label<input name="basics.documentLabel" placeholder="e.g. Curriculum Vitae, Résumé, Professional Profile" /></label>
-            <label>Specialties<input name="basics.tagline" /></label>
-            <div class="field-row">
-              <label>Location<input name="basics.location" autocomplete="address-level2" /></label>
-              <label>Phone<input name="basics.phone" autocomplete="tel" /></label>
+        <div class="product-showcase" aria-label="RapidCV résumé editor preview">
+          <div class="showcase-orbit orbit-one"></div>
+          <div class="showcase-orbit orbit-two"></div>
+          <div class="editor-card">
+            <div class="mini-sidebar">
+              <div class="mini-brand"><img src="/assets/rapidcv-logo.svg" alt="" /><span>RapidCV</span></div>
+              <p>Résumé editor</p>
+              <h2>Shape your story.</h2>
+              <div class="mini-tabs"><span class="active">Basics</span><span>Summary</span><span>Experience</span></div>
+              <label>Full name<i>Alex Morgan</i></label>
+              <label>Professional title<i>Product Designer</i></label>
+              <label>Location<i>Austin, TX</i></label>
+              <div class="mini-ai">✦ Ask AI to strengthen this</div>
             </div>
-            <label>Email<input name="basics.email" type="email" autocomplete="email" /></label>
-            <label>Portfolio<input name="basics.portfolio" autocomplete="url" /></label>
-          </section>
+            <article class="resume-card">
+              <div class="resume-topline"><span>Résumé · 2026</span><b>ATS-friendly</b></div>
+              <h3>Alex Morgan</h3>
+              <h4>Product Designer</h4>
+              <p class="contact">AUSTIN, TX · ALEX@EXAMPLE.COM · ALEXMORGAN.DESIGN</p>
+              <section><h5>Profile</h5><p>Product designer who turns complex workflows into clear, human experiences. Known for connecting research, systems thinking, and business outcomes.</p></section>
+              <section><h5>Selected impact</h5><div class="impact-row"><b>+32%<small>Activation</small></b><b>2.4×<small>Faster delivery</small></b><b>18<small>Markets</small></b></div></section>
+              <section><h5>Experience</h5><div class="role-line"><b>Northstar Labs</b><span>2023—Present</span></div><strong>Lead Product Designer</strong><p>Led the redesign of a core onboarding journey, improving first-week activation while reducing support volume.</p></section>
+            </article>
+            <div class="ai-chip"><span>✦</span><b>AI suggestions ready</b><small>3 ways to sharpen your impact</small></div>
+          </div>
+        </div>
+      </section>
 
-          <section class="form-section" data-section="summary">
-            <div class="section-heading"><h2>Professional summary</h2><p>Keep it direct, specific, and human.</p></div>
-            <label>Summary<textarea name="summary" rows="10"></textarea><span class="field-hint"><span id="summaryCount">0</span> characters</span></label>
-            <div class="tip"><span>✦</span><p><strong>Make the first scan count.</strong> Lead with scope, strengths, and the business outcomes you repeatedly create.</p></div>
-            <div class="closing-editor">
-              <div class="closing-editor-heading">
-                <div><h3>Closing statement</h3><p>An optional final value proposition.</p></div>
-                <label class="toggle">
-                  <input type="checkbox" name="closingStatement.enabled" />
-                  <span></span>
-                  <em>Show</em>
-                </label>
-              </div>
-              <div class="closing-editor-fields" id="closingEditorFields">
-                <label>Label<input name="closingStatement.label" placeholder="e.g. What I bring, Leadership approach"></label>
-                <label>Statement<textarea name="closingStatement.text" rows="4" placeholder="A concise, role-specific statement that adds something new."></textarea></label>
-              </div>
-            </div>
-          </section>
+      <section class="proof-strip" aria-label="RapidCV strengths">
+        <p>Built for the part between <em>“I should update my résumé”</em> and <em>“application sent.”</em></p>
+        <div><span>ATS-friendly</span><span>AI-guided</span><span>PDF-ready</span><span>Private by default</span></div>
+      </section>
 
-          <section class="form-section" data-section="experience">
-            <div class="section-heading section-heading-action">
-              <div><h2>Experience</h2><p>Your recent roles carry the most weight.</p></div>
-              <button class="add-button" type="button" id="addExperienceButton"><span>+</span> Add role</button>
-            </div>
-            <div id="experienceFields"></div>
-          </section>
+      <section class="steps section-shell" id="how-it-works">
+        <div class="section-heading">
+          <p class="eyebrow"><span></span> How it works</p>
+          <h2>From blank page to<br /><em>ready to send.</em></h2>
+        </div>
+        <div class="step-grid">
+          <article><span>01</span><div class="step-icon">✎</div><h3>Tell your story</h3><p>Add your experience in simple, focused sections. Your résumé takes shape as you type.</p></article>
+          <article><span>02</span><div class="step-icon">✦</div><h3>Sharpen with AI</h3><p>Strengthen your summary, bullets, and keywords while keeping every claim true to you.</p></article>
+          <article><span>03</span><div class="step-icon">↓</div><h3>Export with confidence</h3><p>Choose a polished layout, check the live preview, and download a clean, ATS-friendly PDF.</p></article>
+        </div>
+      </section>
 
-          <section class="form-section" data-section="skills">
-            <div class="section-heading section-heading-action">
-              <div><h2>Core competencies</h2><p>Use the language your target roles use.</p></div>
-              <button class="add-button" type="button" id="addSkillButton"><span>+</span> Add group</button>
-            </div>
-            <div id="skillFields"></div>
-          </section>
-        </form>
-      </aside>
+      <section class="feature-section" id="features">
+        <div class="feature-copy">
+          <p class="eyebrow eyebrow-light"><span></span> Designed for real job searches</p>
+          <h2>Good tools get out<br />of your way.</h2>
+          <p>RapidCV keeps the process calm and the output credible. You stay in control of the story; the app handles the structure.</p>
+          <a class="button button-light" href="/app/">Start building <span>→</span></a>
+        </div>
+        <div class="feature-grid">
+          <article><span>◎</span><h3>Live preview</h3><p>See the finished résumé update as you edit—no surprises at export.</p></article>
+          <article><span>▦</span><h3>Flexible designs</h3><p>Switch layouts, colors, and type size without rebuilding your content.</p></article>
+          <article><span>↶</span><h3>Local history</h3><p>Save and restore recent versions directly in your browser.</p></article>
+          <article><span>✓</span><h3>ATS-minded output</h3><p>Clear hierarchy and selectable text help your experience get read.</p></article>
+        </div>
+      </section>
 
-      <section class="preview-panel" aria-label="Resume preview">
-        <div class="preview-toolbar">
+      <section class="final-cta section-shell">
+        <div>
+          <p class="eyebrow"><span></span> Your next application</p>
+          <h2>Make the first scan count.</h2>
+          <p>Build a résumé that sounds like you—and reads like someone worth meeting.</p>
+        </div>
+        <a class="button button-primary" href="/app/">Build my résumé <span>→</span></a>
+      </section>
+
+      <section class="support-section">
+        <div class="support-inner">
+          <div class="support-mark" aria-hidden="true">♡</div>
           <div>
-            <p class="eyebrow">Live preview</p>
-            <p class="preview-note"><span></span> ATS-friendly text</p>
+            <p class="eyebrow eyebrow-light"><span></span> Keep RapidCV independent</p>
+            <h2>Useful, free, and<br />self-funded.</h2>
           </div>
-          <div class="preview-actions">
-            <button class="design-button" id="openDesignButton" type="button" aria-haspopup="dialog">
-              <span class="design-button-icon">▦</span>
-              <span><small>Design</small><strong id="currentDesignName">Modern</strong></span>
-            </button>
-            <div class="type-size-control" aria-label="Resume text size">
-              <span>Text</span>
-              <button id="textSizeDown" aria-label="Decrease resume text size">A−</button>
-              <output id="textSizeValue">100%</output>
-              <button id="textSizeUp" aria-label="Increase resume text size">A+</button>
-            </div>
-            <div class="color-picker" aria-label="Resume accent color">
-              <span>Color</span>
-              <button class="color-swatch active" data-theme="blue" style="--swatch:#3564cc" aria-label="Blue"></button>
-              <button class="color-swatch" data-theme="slate" style="--swatch:#44546f" aria-label="Slate"></button>
-              <button class="color-swatch" data-theme="teal" style="--swatch:#167d7f" aria-label="Teal"></button>
-              <button class="color-swatch" data-theme="green" style="--swatch:#287a52" aria-label="Green"></button>
-              <button class="color-swatch" data-theme="plum" style="--swatch:#76507c" aria-label="Plum"></button>
-            </div>
-            <div class="zoom-controls" aria-label="Preview zoom">
-              <button id="zoomOut" aria-label="Zoom out">−</button>
-              <output id="zoomValue">82%</output>
-              <button id="zoomIn" aria-label="Zoom in">+</button>
-            </div>
+          <div class="support-copy">
+            <p>RapidCV is free to use for the time being and is currently funded entirely out of pocket. If it helps you land a conversation, an optional tip can help cover hosting and AI costs.</p>
+            <a class="support-button" href="https://ko-fi.com/marcuslorenzana" target="_blank" rel="noopener noreferrer">
+              Leave a tip on Ko-fi <span aria-hidden="true">↗</span>
+            </a>
           </div>
-        </div>
-        <div class="paper-stage">
-          <div class="paper-stack" id="resumePreview"></div>
         </div>
       </section>
     </main>
 
-    <div class="design-backdrop" id="designBackdrop"></div>
-    <section class="design-modal" id="designModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="designModalTitle">
-      <header class="design-modal-header">
-        <div>
-          <p class="eyebrow">Résumé gallery</p>
-          <h2 id="designModalTitle">Choose your design</h2>
-          <p>Every design works with your selected color palette and remains ATS-friendly.</p>
-        </div>
-        <button class="icon-button" id="closeDesignButton" type="button" aria-label="Close design gallery">×</button>
-      </header>
-      <div class="design-grid" id="designGrid"></div>
-    </section>
-
-    <div class="ai-backdrop" id="aiBackdrop"></div>
-    <aside class="ai-drawer" id="aiDrawer" aria-hidden="true" aria-labelledby="aiTitle">
-      <header class="ai-header">
-        <div class="ai-orb">✦</div>
-        <div><p class="eyebrow">AI résumé partner</p><h2 id="aiTitle">What should we improve?</h2></div>
-        <button class="icon-button" id="closeAiButton" aria-label="Close AI assistant">×</button>
-      </header>
-
-      <div class="ai-content">
-        <section class="ai-access-card" id="aiAccessCard">
-          <div class="ai-access-summary">
-            <span class="access-indicator"></span>
-            <span><strong id="aiAccessTitle">Checking AI access…</strong><small id="aiAccessDescription">Confirming which connection this browser can use.</small></span>
-          </div>
-          <details id="byokSettings">
-            <summary>Use your own OpenAI API key</summary>
-            <div class="byok-fields">
-              <label for="byokApiKey">OpenAI API key</label>
-              <div class="secret-input">
-                <input id="byokApiKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…" />
-                <button id="toggleByokVisibility" type="button" aria-label="Show API key">Show</button>
-              </div>
-              <label class="byok-remember"><input id="rememberByokKey" type="checkbox" /> Remember on this browser</label>
-              <p class="byok-device-warning">Avoid this option on shared or public devices. Browser extensions and anyone with access to this browser profile may be able to read stored keys.</p>
-              <div class="byok-actions">
-                <button id="saveByokKey" type="button">Use this key</button>
-                <button id="clearByokKey" type="button">Clear</button>
-              </div>
-              <p>Use a dedicated, restricted OpenAI project key with a small spending limit. The key passes through this site’s Worker only for your OpenAI request; it is never added to your résumé or saved on the server.</p>
-            </div>
-          </details>
-        </section>
-
-        <button class="optimize-card" id="optimizeButton">
-          <span class="optimize-icon">↗</span>
-          <span><strong>Optimize my résumé</strong><small>Improve impact, clarity, keywords, and concision in one pass.</small></span>
-          <span>→</span>
-        </button>
-
-        <div class="ai-divider"><span>or give AI more context</span></div>
-
-        <div class="upload-grid">
-          <label class="drop-zone" id="resumeDropZone">
-            <input type="file" id="resumeFile" accept=".pdf,.doc,.docx,.txt,.md" />
-            <span class="drop-icon">↑</span>
-            <strong>Existing résumé</strong>
-            <small id="resumeFileName">PDF, DOCX, or text</small>
-          </label>
-          <label class="drop-zone" id="jobDropZone">
-            <input type="file" id="jobFile" accept=".pdf,.doc,.docx,.txt,.md" />
-            <span class="drop-icon">◎</span>
-            <strong>Job description</strong>
-            <small id="jobFileName">Upload the target role</small>
-          </label>
-        </div>
-
-        <label class="ai-prompt-label" for="aiPrompt">Ask for any change</label>
-        <div class="prompt-box">
-          <textarea id="aiPrompt" rows="5" placeholder="e.g. Tailor this for a Staff Engineer role. Emphasize architecture and leadership without overstating anything."></textarea>
-          <button id="sendAiButton" aria-label="Send prompt">↑</button>
-        </div>
-
-        <div class="prompt-suggestions">
-          <button>Make my bullets more impactful</button>
-          <button>Tailor this to the job description</button>
-          <button>Shorten the summary</button>
-        </div>
-
-        <div class="ai-status" id="aiStatus" role="status" aria-live="polite">
-          <span class="ai-spinner"></span><p><strong>Improving your résumé…</strong><small>Checking every section for clarity and relevance.</small></p>
-        </div>
+    <footer>
+      <a class="brand" href="/"><img src="/assets/rapidcv-logo.svg" alt="" width="30" height="30" /><span>Rapid<span>CV</span></span></a>
+      <div class="footer-copy">
+        <p>Clearer stories. Stronger applications.</p>
+        <span>Free to use for the time being.</span>
       </div>
-
-      <footer class="ai-footer">
-        <span>✦</span>
-        <p>AI can make mistakes. Review every change before exporting.</p>
-      </footer>
-    </aside>
-
-    <div class="history-backdrop" id="historyBackdrop"></div>
-    <aside class="history-drawer" id="historyDrawer" aria-hidden="true" aria-labelledby="historyTitle">
-      <header class="history-header">
-        <div>
-          <p class="eyebrow">Version history</p>
-          <h2 id="historyTitle">Recent changes</h2>
-        </div>
-        <button class="icon-button" id="closeHistoryButton" aria-label="Close version history">×</button>
-      </header>
-      <div class="history-intro">
-        <p>RapidCV keeps the last 10 versions you explicitly save on this device. Restored versions remain drafts until you save them again.</p>
-      </div>
-      <div class="history-list" id="historyList"></div>
-      <footer class="history-footer"><span>●</span> Stored locally in this browser</footer>
-    </aside>
-
-    <div class="change-bar" id="changeBar">
-      <span><strong>AI changes applied</strong> Review the live preview before exporting.</span>
-      <button id="undoAiButton">Undo</button>
-    </div>
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script type="module" src="app.js"></script>
+      <nav aria-label="Legal and contact">
+        <a href="mailto:info@lorenzanadesigns.com">Contact</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href="/app/">Open the builder <span>↗</span></a>
+      </nav>
+    </footer>
   </body>
 </html>

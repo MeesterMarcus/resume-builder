@@ -14,7 +14,8 @@ await fs.mkdir(outputDir, { recursive: true });
 await fs.mkdir(previewDir, { recursive: true });
 const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), "cv-studio-"));
 const server = http.createServer(async (request, response) => {
-  const requestedPath = request.url === "/" ? "/index.html" : request.url;
+  const requestUrl = new URL(request.url, "http://localhost");
+  const requestedPath = requestUrl.pathname === "/" ? "/app/index.html" : requestUrl.pathname;
   const filePath = path.join(sourceDir, requestedPath);
   try {
     const content = await fs.readFile(filePath);

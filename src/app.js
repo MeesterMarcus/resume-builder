@@ -13,6 +13,9 @@ const TEXT_SCALE_STEP = 0.0625;
 const HISTORY_KEY = "cv-studio-history-v1";
 const BYOK_STORAGE_KEY = "cv-studio-openai-key";
 const BYOK_REMEMBER_PREFERENCE_KEY = "cv-studio-remember-openai-key";
+const BACKUP_KIND = "rapidcv-backup";
+const BACKUP_VERSION = 1;
+const MAX_BACKUP_BYTES = 1024 * 1024;
 const RESUME_LAYOUTS = [
   { id: "modern", name: "Modern", description: "Balanced and versatile" },
   { id: "executive", name: "Executive", description: "Formal and composed" },
@@ -122,6 +125,96 @@ const preview = document.querySelector("#resumePreview");
 const saveStatus = document.querySelector("#saveStatus");
 const escapeHtml = (value = "") =>
   value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character]);
+
+const actionModal = document.querySelector("#actionModal");
+const actionModalBackdrop = document.querySelector("#actionModalBackdrop");
+const actionModalField = document.querySelector("#actionModalField");
+const actionModalInput = document.querySelector("#actionModalInput");
+const actionModalConfirmButton = document.querySelector("#actionModalConfirmButton");
+const actionModalCancelButton = document.querySelector("#actionModalCancelButton");
+let actionModalResolver = null;
+let actionModalOptions = null;
+let actionModalPreviousFocus = null;
+
+function closeActionModal(result) {
+  if (!actionModalResolver) return;
+  const resolve = actionModalResolver;
+  actionModalResolver = null;
+  actionModalOptions = null;
+  actionModal.classList.remove("open");
+  actionModalBackdrop.classList.remove("open");
+  actionModal.setAttribute("aria-hidden", "true");
+  actionModal.inert = true;
+  actionModalField.classList.remove("invalid");
+  setTimeout(() => actionModalPreviousFocus?.focus(), 0);
+  resolve(result);
+}
+
+function showActionModal(options) {
+  if (actionModalResolver) closeActionModal(null);
+  actionModalOptions = options;
+  actionModalPreviousFocus = document.activeElement;
+  actionModal.dataset.tone = options.tone ?? "primary";
+  document.querySelector("#actionModalIcon").textContent = options.icon ?? "?";
+  document.querySelector("#actionModalEyebrow").textContent = options.eyebrow ?? "Please confirm";
+  document.querySelector("#actionModalTitle").textContent = options.title;
+  document.querySelector("#actionModalDescription").textContent = options.description;
+  actionModalConfirmButton.textContent = options.confirmLabel ?? "Confirm";
+  actionModalField.hidden = !options.input;
+  actionModalField.classList.remove("invalid");
+  if (options.input) {
+    document.querySelector("#actionModalInputLabel").textContent = options.input.label;
+    document.querySelector("#actionModalInputHint").textContent = options.input.hint ?? "";
+    actionModalInput.value = options.input.value ?? "";
+    actionModalInput.placeholder = options.input.placeholder ?? "";
+  }
+  actionModal.classList.add("open");
+  actionModalBackdrop.classList.add("open");
+  actionModal.setAttribute("aria-hidden", "false");
+  actionModal.inert = false;
+  requestAnimationFrame(() => (options.input ? actionModalInput : actionModalCancelButton).focus());
+  return new Promise((resolve) => {
+    actionModalResolver = resolve;
+  });
+}
+
+actionModalConfirmButton.addEventListener("click", () => {
+  if (actionModalOptions?.input) {
+    const value = actionModalInput.value.trim();
+    if (actionModalOptions.input.required && !value) {
+      actionModalField.classList.add("invalid");
+      document.querySelector("#actionModalInputHint").textContent = actionModalOptions.input.requiredMessage ?? "Please enter a value.";
+      actionModalInput.focus();
+      return;
+    }
+    closeActionModal(value);
+    return;
+  }
+  closeActionModal(true);
+});
+actionModalCancelButton.addEventListener("click", () => closeActionModal(null));
+actionModalBackdrop.addEventListener("click", () => closeActionModal(null));
+actionModalInput.addEventListener("input", () => actionModalField.classList.remove("invalid"));
+actionModal.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && actionModalOptions?.input && event.target === actionModalInput) {
+    event.preventDefault();
+    actionModalConfirmButton.click();
+  }
+  if (event.key !== "Tab") return;
+  const focusable = [...actionModal.querySelectorAll("button:not([hidden]), input:not([hidden])")].filter((element) => !element.closest("[hidden]"));
+  const first = focusable[0];
+  const last = focusable.at(-1);
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && actionModalResolver) closeActionModal(null);
+});
 
 function fillEditor() {
   form.querySelectorAll("[name]").forEach((field) => {
@@ -320,6 +413,174 @@ function saveResume() {
   }
 }
 
+function backupFileName() {
+  const safeName = documentName
+    .normalize("NFKD")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/[\s_-]+/g, "-")
+    .toLowerCase();
+  return `${safeName || "rapidcv-resume"}-backup.json`;
+}
+
+function createBackup() {
+  return {
+    kind: BACKUP_KIND,
+    version: BACKUP_VERSION,
+    exportedAt: new Date().toISOString(),
+    document: {
+      name: documentName,
+      theme: document.documentElement.dataset.resumeTheme ?? "blue",
+      layout: document.documentElement.dataset.resumeLayout ?? "modern",
+      textScale,
+    },
+    resume: clone(data),
+  };
+}
+
+function exportBackup() {
+  const blob = new Blob([`${JSON.stringify(createBackup(), null, 2)}\n`], { type: "application/json" });
+  const downloadUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = backupFileName();
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
+  showToast("Backup downloaded");
+}
+
+function requireString(value, field) {
+  if (typeof value !== "string") throw new Error(`${field} must be text.`);
+  return value;
+}
+
+function requireBoolean(value, field) {
+  if (typeof value !== "boolean") throw new Error(`${field} must be true or false.`);
+  return value;
+}
+
+function requireStringRecord(value, keys, field) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${field} is missing.`);
+  return Object.fromEntries(keys.map((key) => [key, requireString(value[key], `${field}.${key}`)]));
+}
+
+function requireArray(value, field, limit) {
+  if (!Array.isArray(value) || value.length > limit) throw new Error(`${field} is not valid.`);
+  return value;
+}
+
+function normalizeBackupResume(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("The résumé data is missing.");
+  return {
+    basics: requireStringRecord(value.basics, Object.keys(defaultData.basics), "resume.basics"),
+    summary: requireString(value.summary, "resume.summary"),
+    achievements: requireArray(value.achievements, "resume.achievements", 50).map((item, index) =>
+      requireStringRecord(item, ["value", "label"], `resume.achievements.${index}`)),
+    skills: requireArray(value.skills, "resume.skills", 50).map((item, index) =>
+      requireStringRecord(item, ["category", "items"], `resume.skills.${index}`)),
+    experience: requireArray(value.experience, "resume.experience", 100).map((item, index) => ({
+      ...requireStringRecord(item, ["company", "role", "dates", "location"], `resume.experience.${index}`),
+      bullets: requireArray(item.bullets, `resume.experience.${index}.bullets`, 100).map((bullet, bulletIndex) =>
+        requireString(bullet, `resume.experience.${index}.bullets.${bulletIndex}`)),
+    })),
+    education: requireStringRecord(value.education, Object.keys(defaultData.education), "resume.education"),
+    closingStatement: {
+      ...requireStringRecord(value.closingStatement, ["label", "text"], "resume.closingStatement"),
+      enabled: requireBoolean(value.closingStatement?.enabled, "resume.closingStatement.enabled"),
+    },
+  };
+}
+
+function parseBackup(rawBackup) {
+  let backup;
+  try {
+    backup = JSON.parse(rawBackup);
+  } catch {
+    throw new Error("This file is not valid JSON.");
+  }
+  if (backup?.kind !== BACKUP_KIND || backup?.version !== BACKUP_VERSION) {
+    throw new Error("This is not a supported RapidCV backup.");
+  }
+  if (!backup.document || typeof backup.document !== "object") throw new Error("The document settings are missing.");
+  const layout = RESUME_LAYOUTS.some((item) => item.id === backup.document.layout) ? backup.document.layout : "modern";
+  const theme = ["blue", "slate", "teal", "green", "plum"].includes(backup.document.theme) ? backup.document.theme : "blue";
+  const importedScale = Number(backup.document.textScale);
+  return {
+    data: normalizeBackupResume(backup.resume),
+    documentName: requireString(backup.document.name, "document.name").trim() || "Untitled résumé",
+    layout,
+    theme,
+    textScale: Number.isFinite(importedScale) ? importedScale : TEXT_SCALE_BASE,
+  };
+}
+
+async function importBackup(file) {
+  if (!file) return;
+  if (file.size > MAX_BACKUP_BYTES) {
+    showToast("Backup must be smaller than 1 MB");
+    return;
+  }
+  try {
+    const imported = parseBackup(await file.text());
+    const confirmed = await showActionModal({
+      tone: "primary",
+      icon: "↑",
+      eyebrow: "Restore from backup",
+      title: `Import “${imported.documentName}”?`,
+      description: "This will replace the current draft. RapidCV will save a restorable copy in History before importing.",
+      confirmLabel: "Import backup",
+    });
+    if (!confirmed) return;
+    createVersion("Before backup import", true);
+    data = imported.data;
+    documentName = imported.documentName;
+    document.querySelector("#documentName").childNodes[0].textContent = `${documentName} `;
+    setTheme(imported.theme, false);
+    setLayout(imported.layout, false);
+    setTextScale(imported.textScale, false);
+    fillEditor();
+    renderPreview();
+    updateCompletion();
+    markDirty("Imported backup not saved");
+    showToast("Backup imported — save to keep it");
+  } catch (error) {
+    showToast(error.message || "Could not import this backup");
+  }
+}
+
+const backupMenuButton = document.querySelector("#backupMenuButton");
+const backupMenu = document.querySelector("#backupMenu");
+const backupFileInput = document.querySelector("#backupFileInput");
+function toggleBackupMenu(open) {
+  backupMenu.hidden = !open;
+  backupMenuButton.setAttribute("aria-expanded", String(open));
+  if (open) backupMenu.querySelector("button")?.focus();
+}
+backupMenuButton.addEventListener("click", () => toggleBackupMenu(backupMenu.hidden));
+document.querySelector("#exportBackupButton").addEventListener("click", () => {
+  toggleBackupMenu(false);
+  exportBackup();
+});
+document.querySelector("#importBackupButton").addEventListener("click", () => {
+  toggleBackupMenu(false);
+  backupFileInput.click();
+});
+backupFileInput.addEventListener("change", async () => {
+  await importBackup(backupFileInput.files?.[0]);
+  backupFileInput.value = "";
+});
+document.addEventListener("click", (event) => {
+  if (!backupMenu.hidden && !event.target.closest(".backup-control")) toggleBackupMenu(false);
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !backupMenu.hidden) {
+    toggleBackupMenu(false);
+    backupMenuButton.focus();
+  }
+});
+
 form.addEventListener("input", (event) => {
   setByPath(event.target.name, event.target.type === "checkbox" ? event.target.checked : event.target.value);
   if (event.target.name === "summary") document.querySelector("#summaryCount").textContent = event.target.value.length;
@@ -390,8 +651,16 @@ function setZoom(nextZoom) {
 document.querySelector("#zoomOut").addEventListener("click", () => setZoom(zoom - 0.06));
 document.querySelector("#zoomIn").addEventListener("click", () => setZoom(zoom + 0.06));
 document.querySelector("#exportButton").addEventListener("click", () => window.print());
-document.querySelector("#resetButton").addEventListener("click", () => {
-  if (!confirm("Clear every field and start with a blank résumé?")) return;
+document.querySelector("#resetButton").addEventListener("click", async () => {
+  const confirmed = await showActionModal({
+    tone: "danger",
+    icon: "↺",
+    eyebrow: "Start over",
+    title: "Reset this résumé?",
+    description: "Every field in the current draft will be cleared. Your previously saved versions will remain available in History.",
+    confirmLabel: "Reset résumé",
+  });
+  if (!confirmed) return;
   data = clone(defaultData);
   fillEditor();
   renderPreview();
@@ -404,10 +673,23 @@ window.addEventListener("beforeunload", (event) => {
   if (!isDirty) return;
   event.preventDefault();
 });
-document.querySelector("#documentName").addEventListener("click", () => {
-  const next = prompt("Document name", documentName);
-  if (!next?.trim()) return;
-  documentName = next.trim();
+document.querySelector("#documentName").addEventListener("click", async () => {
+  const next = await showActionModal({
+    tone: "primary",
+    icon: "✎",
+    eyebrow: "Document details",
+    title: "Rename this résumé",
+    description: "Choose a short name that will make this draft easy to recognize in your backups.",
+    confirmLabel: "Save name",
+    input: {
+      label: "Document name",
+      value: documentName,
+      required: true,
+      requiredMessage: "Enter a document name.",
+    },
+  });
+  if (!next) return;
+  documentName = next;
   document.querySelector("#documentName").childNodes[0].textContent = `${documentName} `;
   markDirty("Document title not saved");
 });
@@ -429,8 +711,8 @@ function setTheme(theme, record = true) {
 
 function galleryPreviewDocument(layout, theme) {
   const sample = GALLERY_SAMPLE;
-  const stylesUrl = new URL("styles.css", window.location.href).href;
-  const layoutsUrl = new URL("resume-layouts.css", window.location.href).href;
+  const stylesUrl = new URL("/styles.css", window.location.origin).href;
+  const layoutsUrl = new URL("/resume-layouts.css", window.location.origin).href;
   return `<!doctype html>
     <html data-resume-layout="${layout}" data-resume-theme="${theme}" style="--resume-type-scale:1.15">
       <head>
