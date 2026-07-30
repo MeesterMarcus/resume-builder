@@ -7,8 +7,11 @@ const sourceDirectory = path.join(projectDirectory, "src");
 const outputDirectory = path.join(projectDirectory, "dist", "site");
 const browserAssets = [
   "app.js",
+  "action-modal.js",
+  "backup-service.js",
   "index.html",
   "landing.css",
+  "landing.js",
   "legal.css",
   "resume-layouts.css",
   "resume-data.js",

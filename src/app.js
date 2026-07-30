@@ -1,5 +1,12 @@
 import { resumeData as defaultData } from "./resume-data.js";
 import { VersionHistory } from "./version-history.js";
+import { createActionModal } from "./action-modal.js";
+import {
+  MAX_BACKUP_BYTES,
+  backupFileName,
+  createBackup,
+  parseBackup,
+} from "./backup-service.js";
 
 const STORAGE_KEY = "cv-studio-resume-v1";
 const DOCUMENT_NAME_KEY = "cv-studio-document-name";
@@ -13,9 +20,6 @@ const TEXT_SCALE_STEP = 0.0625;
 const HISTORY_KEY = "cv-studio-history-v1";
 const BYOK_STORAGE_KEY = "cv-studio-openai-key";
 const BYOK_REMEMBER_PREFERENCE_KEY = "cv-studio-remember-openai-key";
-const BACKUP_KIND = "rapidcv-backup";
-const BACKUP_VERSION = 1;
-const MAX_BACKUP_BYTES = 1024 * 1024;
 const RESUME_LAYOUTS = [
   { id: "modern", name: "Modern", description: "Balanced and versatile" },
   { id: "executive", name: "Executive", description: "Formal and composed" },
@@ -125,96 +129,7 @@ const preview = document.querySelector("#resumePreview");
 const saveStatus = document.querySelector("#saveStatus");
 const escapeHtml = (value = "") =>
   value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character]);
-
-const actionModal = document.querySelector("#actionModal");
-const actionModalBackdrop = document.querySelector("#actionModalBackdrop");
-const actionModalField = document.querySelector("#actionModalField");
-const actionModalInput = document.querySelector("#actionModalInput");
-const actionModalConfirmButton = document.querySelector("#actionModalConfirmButton");
-const actionModalCancelButton = document.querySelector("#actionModalCancelButton");
-let actionModalResolver = null;
-let actionModalOptions = null;
-let actionModalPreviousFocus = null;
-
-function closeActionModal(result) {
-  if (!actionModalResolver) return;
-  const resolve = actionModalResolver;
-  actionModalResolver = null;
-  actionModalOptions = null;
-  actionModal.classList.remove("open");
-  actionModalBackdrop.classList.remove("open");
-  actionModal.setAttribute("aria-hidden", "true");
-  actionModal.inert = true;
-  actionModalField.classList.remove("invalid");
-  setTimeout(() => actionModalPreviousFocus?.focus(), 0);
-  resolve(result);
-}
-
-function showActionModal(options) {
-  if (actionModalResolver) closeActionModal(null);
-  actionModalOptions = options;
-  actionModalPreviousFocus = document.activeElement;
-  actionModal.dataset.tone = options.tone ?? "primary";
-  document.querySelector("#actionModalIcon").textContent = options.icon ?? "?";
-  document.querySelector("#actionModalEyebrow").textContent = options.eyebrow ?? "Please confirm";
-  document.querySelector("#actionModalTitle").textContent = options.title;
-  document.querySelector("#actionModalDescription").textContent = options.description;
-  actionModalConfirmButton.textContent = options.confirmLabel ?? "Confirm";
-  actionModalField.hidden = !options.input;
-  actionModalField.classList.remove("invalid");
-  if (options.input) {
-    document.querySelector("#actionModalInputLabel").textContent = options.input.label;
-    document.querySelector("#actionModalInputHint").textContent = options.input.hint ?? "";
-    actionModalInput.value = options.input.value ?? "";
-    actionModalInput.placeholder = options.input.placeholder ?? "";
-  }
-  actionModal.classList.add("open");
-  actionModalBackdrop.classList.add("open");
-  actionModal.setAttribute("aria-hidden", "false");
-  actionModal.inert = false;
-  requestAnimationFrame(() => (options.input ? actionModalInput : actionModalCancelButton).focus());
-  return new Promise((resolve) => {
-    actionModalResolver = resolve;
-  });
-}
-
-actionModalConfirmButton.addEventListener("click", () => {
-  if (actionModalOptions?.input) {
-    const value = actionModalInput.value.trim();
-    if (actionModalOptions.input.required && !value) {
-      actionModalField.classList.add("invalid");
-      document.querySelector("#actionModalInputHint").textContent = actionModalOptions.input.requiredMessage ?? "Please enter a value.";
-      actionModalInput.focus();
-      return;
-    }
-    closeActionModal(value);
-    return;
-  }
-  closeActionModal(true);
-});
-actionModalCancelButton.addEventListener("click", () => closeActionModal(null));
-actionModalBackdrop.addEventListener("click", () => closeActionModal(null));
-actionModalInput.addEventListener("input", () => actionModalField.classList.remove("invalid"));
-actionModal.addEventListener("keydown", (event) => {
-  if (event.key === "Enter" && actionModalOptions?.input && event.target === actionModalInput) {
-    event.preventDefault();
-    actionModalConfirmButton.click();
-  }
-  if (event.key !== "Tab") return;
-  const focusable = [...actionModal.querySelectorAll("button:not([hidden]), input:not([hidden])")].filter((element) => !element.closest("[hidden]"));
-  const first = focusable[0];
-  const last = focusable.at(-1);
-  if (event.shiftKey && document.activeElement === first) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && document.activeElement === last) {
-    event.preventDefault();
-    first.focus();
-  }
-});
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && actionModalResolver) closeActionModal(null);
-});
+const showActionModal = createActionModal();
 
 function fillEditor() {
   form.querySelectorAll("[name]").forEach((field) => {
@@ -413,107 +328,29 @@ function saveResume() {
   }
 }
 
-function backupFileName() {
-  const safeName = documentName
-    .normalize("NFKD")
-    .replace(/[^\w\s-]/g, "")
-    .trim()
-    .replace(/[\s_-]+/g, "-")
-    .toLowerCase();
-  return `${safeName || "rapidcv-resume"}-backup.json`;
-}
-
-function createBackup() {
-  return {
-    kind: BACKUP_KIND,
-    version: BACKUP_VERSION,
-    exportedAt: new Date().toISOString(),
+function currentBackup() {
+  return createBackup({
+    resume: data,
     document: {
       name: documentName,
       theme: document.documentElement.dataset.resumeTheme ?? "blue",
       layout: document.documentElement.dataset.resumeLayout ?? "modern",
       textScale,
     },
-    resume: clone(data),
-  };
+  });
 }
 
 function exportBackup() {
-  const blob = new Blob([`${JSON.stringify(createBackup(), null, 2)}\n`], { type: "application/json" });
+  const blob = new Blob([`${JSON.stringify(currentBackup(), null, 2)}\n`], { type: "application/json" });
   const downloadUrl = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = downloadUrl;
-  link.download = backupFileName();
+  link.download = backupFileName(documentName);
   document.body.append(link);
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
   showToast("Backup downloaded");
-}
-
-function requireString(value, field) {
-  if (typeof value !== "string") throw new Error(`${field} must be text.`);
-  return value;
-}
-
-function requireBoolean(value, field) {
-  if (typeof value !== "boolean") throw new Error(`${field} must be true or false.`);
-  return value;
-}
-
-function requireStringRecord(value, keys, field) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${field} is missing.`);
-  return Object.fromEntries(keys.map((key) => [key, requireString(value[key], `${field}.${key}`)]));
-}
-
-function requireArray(value, field, limit) {
-  if (!Array.isArray(value) || value.length > limit) throw new Error(`${field} is not valid.`);
-  return value;
-}
-
-function normalizeBackupResume(value) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("The résumé data is missing.");
-  return {
-    basics: requireStringRecord(value.basics, Object.keys(defaultData.basics), "resume.basics"),
-    summary: requireString(value.summary, "resume.summary"),
-    achievements: requireArray(value.achievements, "resume.achievements", 50).map((item, index) =>
-      requireStringRecord(item, ["value", "label"], `resume.achievements.${index}`)),
-    skills: requireArray(value.skills, "resume.skills", 50).map((item, index) =>
-      requireStringRecord(item, ["category", "items"], `resume.skills.${index}`)),
-    experience: requireArray(value.experience, "resume.experience", 100).map((item, index) => ({
-      ...requireStringRecord(item, ["company", "role", "dates", "location"], `resume.experience.${index}`),
-      bullets: requireArray(item.bullets, `resume.experience.${index}.bullets`, 100).map((bullet, bulletIndex) =>
-        requireString(bullet, `resume.experience.${index}.bullets.${bulletIndex}`)),
-    })),
-    education: requireStringRecord(value.education, Object.keys(defaultData.education), "resume.education"),
-    closingStatement: {
-      ...requireStringRecord(value.closingStatement, ["label", "text"], "resume.closingStatement"),
-      enabled: requireBoolean(value.closingStatement?.enabled, "resume.closingStatement.enabled"),
-    },
-  };
-}
-
-function parseBackup(rawBackup) {
-  let backup;
-  try {
-    backup = JSON.parse(rawBackup);
-  } catch {
-    throw new Error("This file is not valid JSON.");
-  }
-  if (backup?.kind !== BACKUP_KIND || backup?.version !== BACKUP_VERSION) {
-    throw new Error("This is not a supported RapidCV backup.");
-  }
-  if (!backup.document || typeof backup.document !== "object") throw new Error("The document settings are missing.");
-  const layout = RESUME_LAYOUTS.some((item) => item.id === backup.document.layout) ? backup.document.layout : "modern";
-  const theme = ["blue", "slate", "teal", "green", "plum"].includes(backup.document.theme) ? backup.document.theme : "blue";
-  const importedScale = Number(backup.document.textScale);
-  return {
-    data: normalizeBackupResume(backup.resume),
-    documentName: requireString(backup.document.name, "document.name").trim() || "Untitled résumé",
-    layout,
-    theme,
-    textScale: Number.isFinite(importedScale) ? importedScale : TEXT_SCALE_BASE,
-  };
 }
 
 async function importBackup(file) {
@@ -523,7 +360,14 @@ async function importBackup(file) {
     return;
   }
   try {
-    const imported = parseBackup(await file.text());
+    const imported = parseBackup(await file.text(), {
+      defaultResume: defaultData,
+      layouts: RESUME_LAYOUTS.map((item) => item.id),
+      themes: ["blue", "slate", "teal", "green", "plum"],
+      defaultLayout: "modern",
+      defaultTheme: "blue",
+      defaultTextScale: TEXT_SCALE_BASE,
+    });
     const confirmed = await showActionModal({
       tone: "primary",
       icon: "↑",
@@ -544,7 +388,7 @@ async function importBackup(file) {
     renderPreview();
     updateCompletion();
     markDirty("Imported backup not saved");
-    showToast("Backup imported — save to keep it");
+    showToast(imported.migrated ? "Older backup upgraded — save to keep it" : "Backup imported — save to keep it");
   } catch (error) {
     showToast(error.message || "Could not import this backup");
   }

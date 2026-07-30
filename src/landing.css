@@ -138,6 +138,61 @@ footer nav a { text-decoration: none; color: #626d80; font-size: 11px; font-weig
 footer nav a:hover { color: var(--blue); }
 footer nav a:last-child { color: #37445c; font-weight: 800; }
 footer nav a:last-child span { margin-left: 5px; color: var(--blue); }
+
+/* Motion is progressively enabled by landing.js so content remains visible without JavaScript. */
+.motion-ready .site-header,
+.motion-ready .hero-copy > *,
+.motion-ready .product-showcase { opacity: 0; }
+.motion-ready .site-header { transform: translate(-50%, -12px); }
+.motion-ready .hero-copy > * { transform: translateY(18px); }
+.motion-ready .product-showcase { transform: translateX(24px) scale(.985); }
+.motion-ready.page-loaded .site-header {
+  opacity: 1; transform: translate(-50%, 0); transition: opacity .65s ease, transform .65s cubic-bezier(.22, 1, .36, 1);
+}
+.motion-ready.page-loaded .hero-copy > * {
+  opacity: 1; transform: none; transition: opacity .7s ease, transform .75s cubic-bezier(.22, 1, .36, 1);
+}
+.motion-ready.page-loaded .hero-copy > :nth-child(1) { transition-delay: .08s; }
+.motion-ready.page-loaded .hero-copy > :nth-child(2) { transition-delay: .16s; }
+.motion-ready.page-loaded .hero-copy > :nth-child(3) { transition-delay: .24s; }
+.motion-ready.page-loaded .hero-copy > :nth-child(4) { transition-delay: .32s; }
+.motion-ready.page-loaded .hero-copy > :nth-child(5) { transition-delay: .4s; }
+.motion-ready.page-loaded .product-showcase {
+  opacity: 1; transform: none; transition: opacity .85s .22s ease, transform .95s .22s cubic-bezier(.22, 1, .36, 1);
+}
+.motion-ready [data-reveal] {
+  opacity: 0; transform: translateY(26px); transition: opacity .65s ease var(--reveal-delay, 0ms), transform .75s cubic-bezier(.22, 1, .36, 1) var(--reveal-delay, 0ms), background-color .25s ease;
+}
+.motion-ready [data-reveal="left"] { transform: translateX(-28px); }
+.motion-ready [data-reveal="right"] { transform: translateX(28px); }
+.motion-ready [data-reveal].is-visible { opacity: 1; transform: none; }
+.showcase-orbit::after {
+  content: ""; position: absolute; top: -4px; left: 50%; width: 7px; height: 7px; border-radius: 50%;
+  background: #5876df; box-shadow: 0 0 0 5px #5876df14;
+}
+.page-loaded .orbit-one { animation: orbit-drift 24s linear infinite; }
+.page-loaded .orbit-two { animation: orbit-drift-reverse 31s linear infinite; }
+.page-loaded .hero-glow { animation: glow-breathe 9s ease-in-out infinite; }
+.page-loaded .editor-card { animation: showcase-float 7s ease-in-out infinite; }
+.page-loaded .ai-chip { animation: chip-float 4.5s ease-in-out infinite; }
+.motion-ready .step-grid article.is-visible:hover { transform: translateY(-5px); background: #fbfcff; transition-delay: 0ms; }
+.motion-ready .feature-grid article.is-visible:hover { transform: translateY(-4px); background: #ffffff08; transition-delay: 0ms; }
+.step-grid article:hover .step-icon, .feature-grid article:hover > span { transform: scale(1.08) rotate(-3deg); }
+.step-icon, .feature-grid article > span { transition: transform .3s cubic-bezier(.22, 1, .36, 1); }
+@keyframes showcase-float {
+  0%, 100% { transform: rotateY(-4deg) rotateX(1deg) translateY(0); }
+  50% { transform: rotateY(-3deg) rotateX(.5deg) translateY(-8px); }
+}
+@keyframes chip-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes orbit-drift { to { transform: rotate(360deg); } }
+@keyframes orbit-drift-reverse { to { transform: rotate(-360deg); } }
+@keyframes glow-breathe {
+  0%, 100% { opacity: .75; transform: scale(1) translate(0); }
+  50% { opacity: 1; transform: scale(1.08) translate(-18px, 12px); }
+}
 @media (max-width: 1050px) {
   .hero { grid-template-columns: 1fr; padding-top: 145px; }
   .hero-copy { max-width: 720px; }
@@ -180,5 +235,7 @@ footer nav a:last-child span { margin-left: 5px; color: var(--blue); }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after { transition-duration: .01ms !important; }
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; transition-delay: 0ms !important; }
+  .motion-ready .site-header { opacity: 1; transform: translate(-50%, 0); }
+  .motion-ready .hero-copy > *, .motion-ready .product-showcase, .motion-ready [data-reveal] { opacity: 1; transform: none; }
 }
