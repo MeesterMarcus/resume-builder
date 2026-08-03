@@ -266,11 +266,16 @@ input:focus, textarea:focus { border-color: #8ca9f7; box-shadow: 0 0 0 3px #2f5f
 .ai-divider { display: flex; align-items: center; gap: 12px; margin: 22px 0; color: #98a2b3; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; }
 .ai-divider::before, .ai-divider::after { content: ""; height: 1px; flex: 1; background: #e4e7ec; }
 .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.drop-zone-shell { position: relative; min-width: 0; }
 .drop-zone { min-width: 0; min-height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; padding: 16px 10px; border: 1px dashed #bcc6d6; border-radius: 11px; color: var(--ink); text-align: center; cursor: pointer; transition: .2s; }
 .drop-zone:hover, .drop-zone.dragging, .drop-zone.has-file { border-color: #5579dc; background: #f7f9ff; }
 .drop-zone input { display: none; }
 .drop-zone strong { margin: 8px 0 3px; font-size: 11px; }
 .drop-zone small { max-width: 150px; overflow: hidden; color: #7c8799; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; font-weight: 500; }
+.remove-ai-file { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; display: grid; place-items: center; padding: 0; border: 1px solid #d8dfeb; border-radius: 7px; background: #fff; color: #667085; box-shadow: 0 3px 9px #17233d12; cursor: pointer; font: 700 15px/1 Manrope; opacity: 0; pointer-events: none; transform: scale(.9); transition: .16s; }
+.drop-zone.has-file + .remove-ai-file { opacity: 1; pointer-events: auto; transform: none; }
+.remove-ai-file:hover { border-color: #e2a49d; background: #fff5f3; color: #b54737; }
+.remove-ai-file:focus-visible { opacity: 1; outline: 2px solid #3159c6; outline-offset: 2px; }
 .drop-icon { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #eef2ff; color: #3159c6; font-size: 15px; }
 .ai-prompt-label { margin: 24px 0 8px; color: #344054; }
 .prompt-box { position: relative; }

@@ -115,6 +115,10 @@ let isDirty = false;
 let aiHostedAccess = null;
 let byokApiKey = sessionStorage.getItem(BYOK_STORAGE_KEY) ?? "";
 const aiDocuments = { resume: null, job: null };
+const aiDocumentPlaceholders = {
+  resume: "PDF, DOCX, or text",
+  job: "Upload the target role",
+};
 const versionHistory = new VersionHistory(HISTORY_KEY, 10);
 
 // Older releases offered persistent API-key storage. Remove those values during
@@ -738,6 +742,8 @@ function toggleAiDrawer(open) {
   if (open) {
     refreshAiAccessStatus();
     setTimeout(() => aiPrompt.focus(), 280);
+  } else {
+    resetAiPaneFields();
   }
 }
 
@@ -800,10 +806,28 @@ async function setAiFile(kind, file) {
   label.closest(".drop-zone").classList.add("has-file");
 }
 
-function setupDropZone(kind, inputSelector, zoneSelector) {
+function clearAiFile(kind, input, zone, announce = true) {
+  aiDocuments[kind] = null;
+  input.value = "";
+  zone.classList.remove("has-file");
+  zone.querySelector("small").textContent = aiDocumentPlaceholders[kind];
+  if (announce) showToast(`${kind === "resume" ? "Résumé" : "Job description"} attachment removed`);
+}
+
+function resetAiPaneFields() {
+  aiPrompt.value = "";
+  clearAiFile("resume", document.querySelector("#resumeFile"), document.querySelector("#resumeDropZone"), false);
+  clearAiFile("job", document.querySelector("#jobFile"), document.querySelector("#jobDropZone"), false);
+  byokSettings.open = false;
+  setAiStatus("idle");
+}
+
+function setupDropZone(kind, inputSelector, zoneSelector, removeSelector) {
   const input = document.querySelector(inputSelector);
   const zone = document.querySelector(zoneSelector);
+  const removeButton = document.querySelector(removeSelector);
   input.addEventListener("change", () => setAiFile(kind, input.files[0]));
+  removeButton.addEventListener("click", () => clearAiFile(kind, input, zone));
   ["dragenter", "dragover"].forEach((eventName) =>
     zone.addEventListener(eventName, (event) => {
       event.preventDefault();
@@ -819,8 +843,8 @@ function setupDropZone(kind, inputSelector, zoneSelector) {
   zone.addEventListener("drop", (event) => setAiFile(kind, event.dataTransfer.files[0]));
 }
 
-setupDropZone("resume", "#resumeFile", "#resumeDropZone");
-setupDropZone("job", "#jobFile", "#jobDropZone");
+setupDropZone("resume", "#resumeFile", "#resumeDropZone", "#removeResumeFile");
+setupDropZone("job", "#jobFile", "#jobDropZone", "#removeJobFile");
 
 document.querySelectorAll(".prompt-suggestions button").forEach((button) => {
   button.addEventListener("click", () => {

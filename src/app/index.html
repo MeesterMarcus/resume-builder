@@ -205,18 +205,24 @@
         <div class="ai-divider"><span>or give AI more context</span></div>
 
         <div class="upload-grid">
-          <label class="drop-zone" id="resumeDropZone">
-            <input type="file" id="resumeFile" accept=".pdf,.doc,.docx,.txt,.md" />
-            <span class="drop-icon">↑</span>
-            <strong>Existing résumé</strong>
-            <small id="resumeFileName">PDF, DOCX, or text</small>
-          </label>
-          <label class="drop-zone" id="jobDropZone">
-            <input type="file" id="jobFile" accept=".pdf,.doc,.docx,.txt,.md" />
-            <span class="drop-icon">◎</span>
-            <strong>Job description</strong>
-            <small id="jobFileName">Upload the target role</small>
-          </label>
+          <div class="drop-zone-shell">
+            <label class="drop-zone" id="resumeDropZone">
+              <input type="file" id="resumeFile" accept=".pdf,.doc,.docx,.txt,.md" />
+              <span class="drop-icon">↑</span>
+              <strong>Existing résumé</strong>
+              <small id="resumeFileName">PDF, DOCX, or text</small>
+            </label>
+            <button class="remove-ai-file" id="removeResumeFile" type="button" aria-label="Remove attached résumé" title="Remove attachment">×</button>
+          </div>
+          <div class="drop-zone-shell">
+            <label class="drop-zone" id="jobDropZone">
+              <input type="file" id="jobFile" accept=".pdf,.doc,.docx,.txt,.md" />
+              <span class="drop-icon">◎</span>
+              <strong>Job description</strong>
+              <small id="jobFileName">Upload the target role</small>
+            </label>
+            <button class="remove-ai-file" id="removeJobFile" type="button" aria-label="Remove attached job description" title="Remove attachment">×</button>
+          </div>
         </div>
 
         <label class="ai-prompt-label" for="aiPrompt">Ask for any change</label>
