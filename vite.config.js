@@ -4,6 +4,7 @@ import path from "node:path";
 
 export default defineConfig({
   root: "src",
+  envDir: process.cwd(),
   publicDir: "../public",
   plugins: [react()],
   server: {

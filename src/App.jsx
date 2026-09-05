@@ -17,12 +17,16 @@ import HistoryDrawer from "./components/HistoryDrawer.jsx";
 import ActionModal from "./components/ActionModal.jsx";
 import AiDrawer from "./components/AiDrawer.jsx";
 
-export default function App() {
-  const [draft, setDraft] = useState(loadDocument);
+export default function App({ initialDocument, initialHistory, onPersist, onDirtyChange }) {
+  const [draft, setDraft] = useState(() => initialDocument ?? loadDocument());
   const { data, documentName, theme, layout, textScale } = draft;
   const [dirty, setDirty] = useState(false);
-  const [saveStatus, setSaveStatus] = useState("Saved locally");
-  const [history] = useState(() => new VersionHistory(KEYS.history, 10));
+  const [saveStatus, setSaveStatus] = useState(onPersist ? "Saved to account" : "Saved locally");
+  const [history] = useState(() => new VersionHistory(onPersist ? null : KEYS.history, 10, initialHistory));
+  const [saving, setSaving] = useState(false);
+  const [syncError, setSyncError] = useState("");
+  const editGeneration = useRef(0);
+  const savingRef = useRef(false);
   const [entries, setEntries] = useState(() => history.all());
   const [historyOpen, setHistoryOpen] = useState(false);
   const [designOpen, setDesignOpen] = useState(false);
@@ -31,6 +35,12 @@ export default function App() {
   const [toast, setToast] = useState(null);
   const [modal, setModal] = useState(null);
   const pendingModal = useRef(null);
+  useEffect(() => { onDirtyChange?.(dirty || saving); }, [dirty, saving, onDirtyChange]);
+  useEffect(() => {
+    if (!onPersist || !dirty || saving || syncError) return;
+    const timer = setTimeout(() => save(), 1500);
+    return () => clearTimeout(timer);
+  }, [draft, dirty, saving, syncError]);
   useEffect(() => {
     try {
       localStorage.removeItem(KEYS.apiKey);
@@ -68,6 +78,7 @@ export default function App() {
     setToast({ message });
   }
   function markDirty(message = "Unsaved changes") {
+    editGeneration.current++;
     setDirty(true);
     setSaveStatus(message);
   }
@@ -128,8 +139,23 @@ export default function App() {
     setEntries(history.all());
     return created;
   }
-  function save() {
+  async function save() {
+    if (savingRef.current) return;
+    const generation = editGeneration.current;
+    savingRef.current = true;
+    setSaving(true);
     try {
+      if (onPersist) {
+        snapshot("Saved version");
+        setSaveStatus("Saving to account…");
+        await onPersist(draft, history.all());
+        setSyncError("");
+        if (generation === editGeneration.current) {
+          setDirty(false);
+          setSaveStatus("Saved to account");
+        } else setSaveStatus("Unsaved changes");
+        return;
+      }
       localStorage.setItem(KEYS.resume, JSON.stringify(data));
       localStorage.setItem(KEYS.name, documentName);
       localStorage.setItem(KEYS.theme, theme);
@@ -139,10 +165,11 @@ export default function App() {
       setDirty(false);
       setSaveStatus("Saved locally");
       showToast(created ? "Version saved" : "Everything is already saved");
-    } catch {
-      setSaveStatus("Could not save locally");
-      showToast("Browser storage is unavailable");
-    }
+    } catch (error) {
+      setSaveStatus(onPersist ? "Not synced — retry Save" : "Could not save locally");
+      if (onPersist) setSyncError(error.message);
+      showToast(onPersist ? error.message : "Browser storage is unavailable");
+    } finally { savingRef.current = false; setSaving(false); }
   }
   function ask(options) {
     pendingModal.current?.(null);
@@ -300,6 +327,11 @@ export default function App() {
           setAiOpen,
         }}
       />
+      {syncError && <div className="cloud-message" role="alert">
+        {syncError} Your changes remain in this tab. <button onClick={save}>Retry save</button>{" "}
+        <button onClick={exportBackup}>Export unsaved draft</button>{" "}
+        <button onClick={() => { if (window.confirm("Reload the account version and discard unsaved changes in this tab? Export a backup first if you want to keep them.")) window.location.reload(); }}>Reload account version</button>
+      </div>}
       <main className="workspace">
         <EditorPanel
           {...{ data, changeField, removeItem }}
@@ -343,6 +375,7 @@ export default function App() {
       )}
       {historyOpen && (
         <HistoryDrawer
+          cloud={Boolean(onPersist)}
           {...{ entries, restore }}
           close={() => setHistoryOpen(false)}
         />

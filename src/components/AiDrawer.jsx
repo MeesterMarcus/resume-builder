@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@clerk/react";
 import { KEYS, readStorage } from "../storage.js";
 
 async function readResponse(response) {
@@ -23,6 +24,7 @@ function readFile(file) {
   });
 }
 export default function AiDrawer({ open, close, data, applyAi, showToast }) {
+  const { getToken, isSignedIn } = useAuth();
   const [hosted, setHosted] = useState(null);
   const [apiKey, setApiKey] = useState(() =>
     readStorage(KEYS.apiKey, "", sessionStorage),
@@ -160,11 +162,14 @@ export default function AiDrawer({ open, close, data, applyAi, showToast }) {
           : "Applying your request without inventing details.",
     });
     try {
+      const token = isSignedIn ? await getToken() : null;
+      if (isSignedIn && !token) throw new Error("Please sign in again before using AI.");
       const response = await fetch("/api/ai/revise", {
         method: "POST",
         signal: controller.signal,
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
           ...(!hosted && apiKey ? { "X-OpenAI-API-Key": apiKey } : {}),
         },
         body: JSON.stringify({

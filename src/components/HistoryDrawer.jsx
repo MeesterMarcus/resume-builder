@@ -1,4 +1,4 @@
-export default function HistoryDrawer({ entries, close, restore }) {
+export default function HistoryDrawer({ entries, close, restore, cloud = false }) {
   return (
     <>
       <div
@@ -27,8 +27,7 @@ export default function HistoryDrawer({ entries, close, restore }) {
         </header>
         <div className="history-intro">
           <p>
-            RapidCV keeps the last 10 versions you explicitly save on this
-            device. Restored versions remain drafts until you save them again.
+            {cloud ? "RapidCV keeps your last 10 saved versions in your account. Changes and restored versions save automatically." : "RapidCV keeps the last 10 versions you explicitly save on this device. Restored versions remain drafts until you save them again."}
           </p>
         </div>
         <div className="history-list" id="historyList">
@@ -60,7 +59,7 @@ export default function HistoryDrawer({ entries, close, restore }) {
           )}
         </div>
         <footer className="history-footer">
-          <span>●</span> Stored locally in this browser
+          <span>●</span> {cloud ? "Saved with this CV in your account" : "Stored locally in this browser"}
         </footer>
       </aside>
     </>

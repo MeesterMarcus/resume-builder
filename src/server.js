@@ -5,6 +5,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { reviseResume } from "./ai-service.js";
 import { config } from "./config.js";
+import { authenticateUser, handleAccountRequest } from "../server/accounts.js";
+import { localAccounts } from "../server/local-accounts.js";
+import { handleDocumentRequest } from "../server/documents.js";
 
 const sourceDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../dist/site");
 
@@ -56,6 +59,22 @@ async function readJson(request) {
 }
 
 const server = http.createServer(async (request, response) => {
+  const apiRequest = new Request(new URL(request.url, `http://${config.host}:${config.port}`), {
+    method: request.method,
+    headers: request.headers,
+    ...(!["GET", "HEAD"].includes(request.method) && request.url.startsWith("/api/documents") ? { body: request, duplex: "half" } : {}),
+  });
+  const accountEnv = {
+    ...process.env,
+    CLERK_AUTHORIZED_PARTIES: process.env.CLERK_AUTHORIZED_PARTIES ?? "http://127.0.0.1:5173,http://localhost:5173,http://127.0.0.1:8080,http://localhost:8080",
+  };
+  const accountResponse = await handleAccountRequest(apiRequest, accountEnv, localAccounts)
+    ?? await handleDocumentRequest(apiRequest, accountEnv, localAccounts);
+  if (accountResponse) {
+    response.writeHead(accountResponse.status, Object.fromEntries(accountResponse.headers));
+    response.end(await accountResponse.text());
+    return;
+  }
   if (request.method === "GET" && request.url === "/api/ai/status") {
     sendJson(response, 200, {
       configured: Boolean(config.openAiApiKey),
@@ -68,10 +87,12 @@ const server = http.createServer(async (request, response) => {
 
   if (request.method === "POST" && request.url === "/api/ai/revise") {
     try {
+      const userId = request.headers.authorization ? await authenticateUser(apiRequest, accountEnv) : null;
       const result = await reviseResume(await readJson(request), request.headers["x-openai-api-key"]?.trim());
+      if (userId) await localAccounts.increment(userId);
       sendJson(response, 200, { resume: result });
     } catch (error) {
-      sendJson(response, 400, { error: error.message });
+      sendJson(response, error.status ?? 400, { error: error.message });
     }
     return;
   }

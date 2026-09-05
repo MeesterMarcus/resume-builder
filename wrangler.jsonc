@@ -37,12 +37,20 @@
   "durable_objects": {
     "bindings": [
       {
+        "name": "USER_ACCOUNTS",
+        "class_name": "UserAccount"
+      },
+      {
         "name": "HOSTED_AI_DAILY_LIMIT",
         "class_name": "HostedAiDailyLimit"
       }
     ]
   },
   "exports": {
+    "UserAccount": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    },
     "HostedAiDailyLimit": {
       "type": "durable-object",
       "storage": "sqlite"

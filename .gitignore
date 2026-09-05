@@ -1,5 +1,7 @@
 .env
 .dev.vars
+.data/
+.wrangler/
 node_modules/
 dist/
 tmp/

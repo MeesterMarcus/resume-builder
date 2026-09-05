@@ -1,8 +1,12 @@
 import { createOpenAiRequest, getOutputText } from "../shared/ai-contract.js";
 import { checkAiRateLimit } from "./ai-rate-limit.js";
+import { authenticateUser, handleAccountRequest } from "../server/accounts.js";
+import { UserAccount, userAccountStore } from "./user-account.js";
+import { handleDocumentRequest } from "../server/documents.js";
 import { HostedAiDailyLimit, consumeHostedAiDailyAllowance } from "./hosted-ai-daily-limit.js";
 
 export { HostedAiDailyLimit };
+export { UserAccount };
 
 const HOSTED_AI_DAILY_LIMIT = 50;
 
@@ -66,6 +70,11 @@ function validatePayload(payload) {
 }
 
 async function reviseResume(request, env) {
+  let userId = null;
+  if (request.headers.has("Authorization")) {
+    try { userId = await authenticateUser(request, env); }
+    catch (error) { return jsonResponse({ error: error.message }, error.status ?? 503); }
+  }
   const contentLength = Number.parseInt(request.headers.get("Content-Length") ?? "0", 10);
   if (contentLength > 15 * 1024 * 1024) {
     return jsonResponse({ error: "The AI request is too large." }, 413);
@@ -117,7 +126,9 @@ async function reviseResume(request, env) {
       throw new Error(responseBody.error?.message ?? "The AI request failed.");
     }
 
-    return jsonResponse({ resume: JSON.parse(getOutputText(responseBody)) });
+    const resume = JSON.parse(getOutputText(responseBody));
+    if (userId) await userAccountStore(env).increment(userId);
+    return jsonResponse({ resume });
   } catch (error) {
     return jsonResponse({ error: error.message ?? "The AI request failed." }, 400);
   }
@@ -126,6 +137,10 @@ async function reviseResume(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const accountResponse = await handleAccountRequest(request, env, userAccountStore(env));
+    if (accountResponse) return accountResponse;
+    const documentResponse = await handleDocumentRequest(request, env, userAccountStore(env));
+    if (documentResponse) return documentResponse;
 
     if (url.pathname === "/api/ai/status" && request.method === "GET") {
       const hostedConfigured = Boolean(env.OPENAI_API_KEY);

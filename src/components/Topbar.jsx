@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/react";
 export default function Topbar({
   documentName,
   saveStatus,
@@ -50,6 +51,19 @@ export default function Topbar({
         </span>
       </div>
       <div className="top-actions">
+        <div className="auth-controls">
+          <Show when="signed-out">
+            <SignInButton mode="modal">
+              <button className="button button-ghost" type="button">Sign in</button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="button button-primary" type="button">Sign up</button>
+            </SignUpButton>
+          </Show>
+          <Show when="signed-in">
+            <UserButton />
+          </Show>
+        </div>
         <a
           className="button button-support"
           href="https://ko-fi.com/marcuslorenzana"

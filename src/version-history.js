@@ -1,8 +1,8 @@
 export class VersionHistory {
-  constructor(storageKey, maxEntries = 10) {
+  constructor(storageKey, maxEntries = 10, initialEntries = null) {
     this.storageKey = storageKey;
     this.maxEntries = maxEntries;
-    this.entries = this.load();
+    this.entries = initialEntries ?? this.load();
   }
 
   load() {
@@ -15,6 +15,7 @@ export class VersionHistory {
   }
 
   save() {
+    if (!this.storageKey) return;
     localStorage.setItem(this.storageKey, JSON.stringify(this.entries));
   }
 
