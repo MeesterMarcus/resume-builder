@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/react";
 export default function Topbar({
+  documentPicker,
   documentName,
   saveStatus,
   dirty,
@@ -14,12 +15,18 @@ export default function Topbar({
 }) {
   const [backupOpen, setBackupOpen] = useState(false);
   const fileRef = useRef(null);
+  const accountRef = useRef(null);
   useEffect(() => {
     const click = (event) => {
       if (!event.target.closest(".backup-control")) setBackupOpen(false);
+      if (accountRef.current && !accountRef.current.contains(event.target)) accountRef.current.open = false;
     };
     const keydown = (event) => {
       if (event.key === "Escape") setBackupOpen(false);
+      if (event.key === "Escape" && accountRef.current?.open) {
+        accountRef.current.open = false;
+        accountRef.current.querySelector("summary")?.focus();
+      }
     };
     document.addEventListener("click", click);
     document.addEventListener("keydown", keydown);
@@ -36,6 +43,8 @@ export default function Topbar({
           Rapid<span>CV</span>
         </span>
       </a>
+      <div className="document-context">
+      {documentPicker}
       <div className="document-state">
         <button
           className="document-name"
@@ -50,42 +59,20 @@ export default function Topbar({
           <span id="saveStatus">{saveStatus}</span>
         </span>
       </div>
+      </div>
       <div className="top-actions">
-        <div className="auth-controls">
-          <Show when="signed-out">
-            <SignInButton mode="modal">
-              <button className="button button-ghost" type="button">Sign in</button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <button className="button button-primary" type="button">Sign up</button>
-            </SignUpButton>
-          </Show>
-          <Show when="signed-in">
-            <UserButton />
-          </Show>
-        </div>
-        <a
-          className="button button-support"
-          href="https://ko-fi.com/marcuslorenzana"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Support RapidCV on Ko-fi"
-          title="Tip jar"
-        >
-          <span aria-hidden="true">♡</span>
-          <span className="secondary-label">Tip jar</span>
-        </a>
         <div className="backup-control">
           <button
             className="button button-backup"
             id="backupMenuButton"
+            aria-label="More document actions"
+            title="More actions"
             onClick={() => setBackupOpen(!backupOpen)}
             type="button"
             aria-haspopup="menu"
             aria-expanded={backupOpen}
           >
-            <span aria-hidden="true">⇅</span>
-            <span className="secondary-label">Backup</span>
+            <span aria-hidden="true">···</span>
           </button>
           <div
             className="backup-menu"
@@ -119,6 +106,9 @@ export default function Topbar({
               <strong>Import backup</strong>
               <small>Restore a RapidCV JSON file</small>
             </button>
+            <button onClick={() => { setBackupOpen(false); rename(); }} type="button" role="menuitem"><span>✎</span><strong>Rename CV</strong><small>Give this version a name</small></button>
+            <button id="resetButton" onClick={() => { setBackupOpen(false); reset(); }} type="button" role="menuitem"><span>↺</span><strong>Reset CV</strong><small>Start over and keep your history</small></button>
+            <a className="menu-support" role="menuitem" href="https://ko-fi.com/marcuslorenzana" target="_blank" rel="noopener noreferrer">♡ Support RapidCV</a>
           </div>
           <input
             className="sr-only"
@@ -145,17 +135,6 @@ export default function Topbar({
           <span className="secondary-label">History</span>
         </button>
         <button
-          className="button button-ghost"
-          id="resetButton"
-          onClick={reset}
-          type="button"
-          aria-label="Reset résumé"
-          title="Reset"
-        >
-          <span aria-hidden="true">↺</span>
-          <span className="secondary-label">Reset</span>
-        </button>
-        <button
           className={`button button-save ${dirty ? "dirty" : ""}`}
           id="saveButton"
           onClick={save}
@@ -178,6 +157,31 @@ export default function Topbar({
           <span>↓</span>
           <span className="compact-label">Export PDF</span>
         </button>
+        <div className="auth-controls">
+          <Show when="signed-out">
+            <details className="account-menu" ref={accountRef}>
+              <summary aria-label="Account options" title="Account">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                  <circle cx="12" cy="8" r="3.5" />
+                  <path d="M5 21v-2a7 7 0 0 1 14 0v2" />
+                </svg>
+              </summary>
+              <div className="account-dropdown">
+                <strong>Your workspace, anywhere</strong>
+                <p>Sign in to save your CVs and history to your account.</p>
+                <SignInButton mode="modal">
+                  <button className="account-signin" type="button" onClick={() => { accountRef.current.open = false; }}>Sign in <span aria-hidden="true">→</span></button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="account-signup" type="button" onClick={() => { accountRef.current.open = false; }}>Create an account</button>
+                </SignUpButton>
+              </div>
+            </details>
+          </Show>
+          <Show when="signed-in">
+            <UserButton appearance={{ elements: { avatarBox: { width: "36px", height: "36px" } } }} />
+          </Show>
+        </div>
       </div>
     </header>
   );

@@ -17,7 +17,7 @@ import HistoryDrawer from "./components/HistoryDrawer.jsx";
 import ActionModal from "./components/ActionModal.jsx";
 import AiDrawer from "./components/AiDrawer.jsx";
 
-export default function App({ initialDocument, initialHistory, onPersist, onDirtyChange }) {
+export default function App({ initialDocument, initialHistory, onPersist, onDirtyChange, documentPicker }) {
   const [draft, setDraft] = useState(() => initialDocument ?? loadDocument());
   const { data, documentName, theme, layout, textScale } = draft;
   const [dirty, setDirty] = useState(false);
@@ -314,6 +314,7 @@ export default function App({ initialDocument, initialHistory, onPersist, onDirt
   return (
     <>
       <Topbar
+        documentPicker={documentPicker}
         {...{
           documentName,
           saveStatus,

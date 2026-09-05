@@ -61,9 +61,20 @@ function CloudWorkspace() {
     finally { if (run === generation.current) setLoading(false); }
   }
   useEffect(() => { load(); return () => { generation.current++; }; }, []);
+  useEffect(() => {
+    const close = event => {
+      if (event.type === "keydown" && event.key !== "Escape") return;
+      if (event.type === "click" && event.target.closest(".cv-picker")) return;
+      document.querySelectorAll(".cv-picker[open]").forEach(menu => { menu.open = false; });
+    };
+    document.addEventListener("click", close);
+    document.addEventListener("keydown", close);
+    return () => { document.removeEventListener("click", close); document.removeEventListener("keydown", close); };
+  }, []);
 
   async function open(id) {
     if (dirty || busy) return;
+    document.querySelectorAll(".cv-picker[open]").forEach(menu => { menu.open = false; });
     setBusy(true);
     setError("");
     try { select((await api(`/api/documents/${id}`)).document); }
@@ -72,6 +83,7 @@ function CloudWorkspace() {
   }
   async function create(importLocal = false) {
     if (dirty || busy) return;
+    document.querySelectorAll(".cv-picker[open]").forEach(menu => { menu.open = false; });
     setBusy(true);
     setError("");
     try {
@@ -91,9 +103,9 @@ function CloudWorkspace() {
     setDocuments(items => items.map(item => item.id === id ? { ...item, name: document.draft.documentName } : item));
   }
 
-  return <>
-    <nav className="account-workspace" aria-label="Your CVs">
-      <a href="/">RapidCV</a>
+  const documentPicker = <details className="cv-picker">
+    <summary><span>Your CVs</span><span aria-hidden="true">⌄</span></summary>
+    <nav className="cv-menu-content" aria-label="Your CVs">
       <label>Your CVs <select aria-label="Select a CV" value={current?.id ?? ""} disabled={dirty || busy || loading} onChange={event => open(event.target.value)}>
         {!current && <option value="">Choose a CV</option>}
         {documents.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
@@ -101,11 +113,13 @@ function CloudWorkspace() {
       <button type="button" disabled={dirty || busy || loading || Boolean(error && !current)} onClick={() => create()}>New CV</button>
       <button type="button" disabled={dirty || busy || loading || Boolean(error && !current)} onClick={() => create(true)}>Import browser draft</button>
       {dirty && <span role="status">Save your changes before switching CVs.</span>}
-      {!current && <UserButton />}
     </nav>
+  </details>;
+  return <>
+    {!current && <header className="workspace-welcome-header"><a className="brand" href="/"><img src="/assets/rapidcv-logo.svg" alt="" />RapidCV</a>{documentPicker}<UserButton /></header>}
     {error && <div className="cloud-message" role="alert">{error} {!current && <button onClick={load}>Retry</button>}</div>}
     {loading ? <p className="cloud-message" role="status">Loading your CVs…</p> : current ?
-      <App key={current.id} initialDocument={current.draft} initialHistory={current.history} onPersist={persist} onDirtyChange={setDirty} /> :
+      <App key={current.id} initialDocument={current.draft} initialHistory={current.history} onPersist={persist} onDirtyChange={setDirty} documentPicker={documentPicker} /> :
       !error && <div className="cloud-message"><h1>Your CVs, saved to your account</h1><p>Create a CV or import this browser’s saved draft and history to get started.</p></div>}
   </>;
 }
