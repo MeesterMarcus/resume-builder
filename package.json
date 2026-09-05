@@ -1,24 +1,34 @@
 {
   "name": "resume-builder",
   "version": "1.0.0",
-  "description": "HTML/CSS resume builder with PDF export.",
+  "description": "React + Vite résumé builder with a Cloudflare Worker API and PDF export.",
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12.0"
   },
   "scripts": {
     "build": "node scripts/build-cloudflare.js",
     "build:cloudflare": "npm run build",
-    "build:pdf": "node src/build.js",
+    "build:pdf": "npm run build && node src/build.js",
     "deploy:cloudflare": "npm run build && wrangler deploy",
-    "preview": "node src/server.js",
+    "preview": "npm run build && node src/server.js",
     "preview:cloudflare": "npm run build && wrangler dev",
-    "test": "node --test",
-    "clean": "rm -rf dist"
+    "test": "node --test test/*.test.js",
+    "clean": "rm -rf dist",
+    "dev": "node scripts/dev.js",
+    "dev:frontend": "vite",
+    "dev:api": "node src/server.js",
+    "test:browser": "npm run build && node scripts/test-browser.js"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
     "puppeteer": "^23.0.0",
+    "vite": "^8.2.2",
     "wrangler": "^4.115.0"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   }
 }

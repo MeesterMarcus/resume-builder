@@ -1,6 +1,6 @@
 # CV Studio
 
-A privacy-first HTML/CSS resume editor with a polished, ATS-friendly two-page layout. Changes update the preview instantly and save in the browser.
+A React + Vite résumé editor with an ATS-friendly two-page layout and a Cloudflare Worker API. Changes update the preview instantly; the Save button persists the draft and version history in the browser.
 
 ## AI features
 
@@ -19,13 +19,42 @@ The Node server keeps the API key out of the browser. The AI assistant can optim
 npm install
 ```
 
-## Preview
+## Development
+
+```bash
+npm run dev
+```
+
+Open the Vite URL printed in the terminal (normally `http://127.0.0.1:5173/app/`). This starts Vite with React Fast Refresh and the local Node API on port 8080. Vite proxies `/api/*` to that API. Local AI credentials come from `.env`; without a configured key, you can still edit résumés and use the per-tab BYOK option.
+
+To preview the production build with the Node API:
 
 ```bash
 npm run preview
 ```
 
-Then open the local server URL shown in the terminal.
+For production-equivalent Worker behavior, use `npm run preview:cloudflare` with `.dev.vars`.
+
+## Frontend structure
+
+- `src/App.jsx` owns the résumé draft, saves, backups, and version history.
+- `src/components/` contains the editor, toolbar, preview, gallery, AI drawer, history, and confirmation modal.
+- `src/resume-renderer.js` retains measured two-page pagination inside an isolated React preview container.
+- Public landing, roadmap, and legal pages remain static HTML, processed by Vite as separate entry points.
+- `public/` contains stable asset URLs, robots, sitemap, and the web manifest.
+- `worker/` remains the deployed API. Vite builds into `dist/site`; the build script also produces the `.page` aliases used by the Worker.
+
+Existing `cv-studio-*` storage keys and backup formats remain compatible. Authentication and cloud persistence are not configured yet.
+
+## Verification
+
+```bash
+npm test
+npm run test:browser
+```
+
+Browser checks use Puppeteer and a local server, cover the main editor flows, and mock AI responses without spending API credits. Install its browser once with `npx puppeteer browsers install chrome`, or set `PUPPETEER_EXECUTABLE_PATH` to an installed Chrome executable. Screenshots and a test PDF are written under `tmp/`.
+
 
 ## Build PDF
 

@@ -16,7 +16,7 @@ const profileDir = await fs.mkdtemp(path.join(os.tmpdir(), "cv-studio-"));
 const server = http.createServer(async (request, response) => {
   const requestUrl = new URL(request.url, "http://localhost");
   const requestedPath = requestUrl.pathname === "/" ? "/app/index.html" : requestUrl.pathname;
-  const filePath = path.join(sourceDir, requestedPath);
+  const filePath = path.join(outputDir, "site", requestedPath);
   try {
     const content = await fs.readFile(filePath);
     response.writeHead(200, { "Content-Type": mimeTypes[path.extname(filePath)] ?? "application/octet-stream" });
@@ -38,6 +38,7 @@ try {
   const page = await browser.newPage();
   await page.setViewport({ width: 1000, height: 1200, deviceScaleFactor: 1 });
   await page.goto(`http://127.0.0.1:${port}`, { waitUntil: "networkidle0" });
+  await page.waitForSelector("#resumePreview .resume-page");
   await page.emulateMediaType("print");
   await page.pdf({
     path: path.join(outputDir, "marcus-lorenzana-resume.pdf"),

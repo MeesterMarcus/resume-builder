@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { reviseResume } from "./ai-service.js";
 import { config } from "./config.js";
 
-const sourceDirectory = path.dirname(fileURLToPath(import.meta.url));
+const sourceDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../dist/site");
 
 const contentTypes = {
   ".css": "text/css; charset=utf-8",
