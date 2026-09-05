@@ -7,7 +7,15 @@ import { VersionHistory } from "./version-history.js";
 
 export default function AccountWorkspace() {
   const { isLoaded, userId } = useAuth();
-  if (!isLoaded) return <p role="status">Loading your workspace…</p>;
+  const [timedOut, setTimedOut] = useState(false);
+  useEffect(() => {
+    if (isLoaded) return;
+    const timer = setTimeout(() => setTimedOut(true), 15000);
+    return () => clearTimeout(timer);
+  }, [isLoaded]);
+  if (!isLoaded) return timedOut
+    ? <div className="cloud-message" role="alert">Sign-in could not load. Please reload and try again. <button onClick={() => window.location.reload()}>Reload</button></div>
+    : <p role="status">Loading your workspace…</p>;
   return userId ? <CloudWorkspace key={userId} /> : <App key="guest" />;
 }
 

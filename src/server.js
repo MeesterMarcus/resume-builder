@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { reviseResume } from "./ai-service.js";
 import { config } from "./config.js";
+import { withClerkCsp } from "../shared/clerk-csp.js";
 import { authenticateUser, handleAccountRequest } from "../server/accounts.js";
 import { localAccounts } from "../server/local-accounts.js";
 import { handleDocumentRequest } from "../server/documents.js";
@@ -26,6 +27,8 @@ const securityHeaders = {
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
 };
+
+securityHeaders["Content-Security-Policy"] = withClerkCsp(securityHeaders["Content-Security-Policy"], process.env.VITE_CLERK_PUBLISHABLE_KEY);
 
 function resolveRequestPath(url = "/") {
   const pathname = decodeURIComponent(new URL(url, "http://localhost").pathname);

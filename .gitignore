@@ -1,4 +1,5 @@
 .env
+.env.prod
 .dev.vars
 .data/
 .wrangler/

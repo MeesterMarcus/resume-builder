@@ -1,5 +1,6 @@
 import { createOpenAiRequest, getOutputText } from "../shared/ai-contract.js";
 import { checkAiRateLimit } from "./ai-rate-limit.js";
+import { withClerkCsp } from "../shared/clerk-csp.js";
 import { authenticateUser, handleAccountRequest } from "../server/accounts.js";
 import { UserAccount, userAccountStore } from "./user-account.js";
 import { handleDocumentRequest } from "../server/documents.js";
@@ -31,9 +32,10 @@ function jsonResponse(body, status = 200, additionalHeaders = {}) {
   });
 }
 
-function withSecurityHeaders(response) {
+function withSecurityHeaders(response, env) {
   const headers = new Headers(response.headers);
   Object.entries(securityHeaders).forEach(([name, value]) => headers.set(name, value));
+  headers.set("Content-Security-Policy", withClerkCsp(securityHeaders["Content-Security-Policy"], env.CLERK_PUBLISHABLE_KEY ?? env.VITE_CLERK_PUBLISHABLE_KEY));
   return headers;
 }
 
@@ -190,7 +192,7 @@ export default {
       assetRequest = new Request(legalUrl, request);
     }
     const assetResponse = await env.ASSETS.fetch(assetRequest);
-    const headers = withSecurityHeaders(assetResponse);
+    const headers = withSecurityHeaders(assetResponse, env);
     if (["/privacy/", "/terms/", "/roadmap/"].includes(url.pathname) && assetResponse.ok) {
       headers.set("Content-Type", "text/html; charset=utf-8");
     }
